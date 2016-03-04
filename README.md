@@ -40,7 +40,3 @@ Please visit http://dougtesting.net/winwheel/docs to see a complete set of tutor
 
 ## Maintainer
 Douglas McKechie https://github.com/zarocknz
-
-## Todo
-* Add Winwheel.js to this repositry.
-* Add examples folder with example wheels.
