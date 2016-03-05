@@ -40,3 +40,5 @@ Please visit http://dougtesting.net/winwheel/docs to see a complete set of tutor
 
 ## Maintainer
 Douglas McKechie https://github.com/zarocknz
+
+Keep informed about Winwheel.js by following https://twitter.com/dougtesting
