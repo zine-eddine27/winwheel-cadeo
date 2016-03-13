@@ -38,7 +38,13 @@ var myWheel = new Winwheel({
 ## Tutorials and other documentation
 Please visit http://dougtesting.net/winwheel/docs to see a complete set of tutorials on how to use Winwheel.js as well as other documentation such as class references.
 
+## Examples
+See the /examples folder for examples of some of the types of things you can create with Winwheel.js
+
 ## Maintainer
 Douglas McKechie https://github.com/zarocknz
 
 Keep informed about Winwheel.js by following https://twitter.com/dougtesting
+
+## TODO
+More examples
