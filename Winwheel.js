@@ -379,17 +379,20 @@ Winwheel.prototype.drawPointerGuide = function()
     if (this.ctx)
     {
         this.ctx.save();
-        this.ctx.translate(this.canvas.width / 2, this.canvas.height / 2);
-        this.ctx.rotate(this.degToRad(this.pointerAngle));
-        this.ctx.translate(-this.canvas.width / 2, -this.canvas.height / 2);
         
+        // Rotate the canvas to the line goes towards the location of the pointer.
+        this.ctx.translate(this.centerX, this.centerY);
+        this.ctx.rotate(this.degToRad(this.pointerAngle));
+        this.ctx.translate(-this.centerX, -this.centerY);
+        
+        // Set line colour and width.
         this.ctx.strokeStyle = this.pointerGuide.strokeStyle;
         this.ctx.lineWidth = this.pointerGuide.lineWidth;
         
-        // Draw from the center of the wheel out at the pointer angle to the edge of the canvas.
+        // Draw from the center of the wheel outwards past the wheel outer radius.
         this.ctx.beginPath();
-        this.ctx.moveTo(this.canvas.width / 2, this.canvas.height / 2);
-        this.ctx.lineTo(this.centerX, -(this.outerRadius / 5));
+        this.ctx.moveTo(this.centerX, this.centerY);
+        this.ctx.lineTo(this.centerX, -(this.outerRadius / 4));
         
         this.ctx.stroke();
         this.ctx.restore();
@@ -411,12 +414,12 @@ Winwheel.prototype.drawWheelImage = function()
         var imageLeft = (this.centerX - (this.wheelImage.height / 2));
         var imageTop  = (this.centerY - (this.wheelImage.width / 2));
         
-        // Rotate and then draw the wheel. We must rotate by the rotationAngle before drawing to ensure that
-        // image wheels will spin.
+        // Rotate and then draw the wheel. 
+        // We must rotate by the rotationAngle before drawing to ensure that image wheels will spin.
         this.ctx.save();
-        this.ctx.translate(this.canvas.width / 2, this.canvas.height / 2);
+        this.ctx.translate(this.centerX, this.centerY);
         this.ctx.rotate(this.degToRad(this.rotationAngle));
-        this.ctx.translate(-this.canvas.width / 2, -this.canvas.height / 2);
+        this.ctx.translate(-this.centerX, -this.centerY);
         
         this.ctx.drawImage(this.wheelImage, imageLeft, imageTop);
         
@@ -610,9 +613,9 @@ Winwheel.prototype.drawSegmentText = function()
                         var textAngle = this.degToRad((seg.endAngle - ((seg.endAngle - seg.startAngle) / 2) + this.rotationAngle - 90) - 180);
                         
                         this.ctx.save();
-                        this.ctx.translate(this.canvas.width / 2, this.canvas.height / 2);
+                        this.ctx.translate(this.centerX, this.centerY);
                         this.ctx.rotate(textAngle);
-                        this.ctx.translate(-this.canvas.width / 2, -this.canvas.height / 2);
+                        this.ctx.translate(-this.centerX, -this.centerY);
                         
                         if (alignment == 'inner')
                         {
