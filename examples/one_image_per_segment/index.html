@@ -35,7 +35,7 @@
         <div align="center">
             <h1>Winwheel.js example wheel - one image per segment</h1>
             <br />
-            <p>Here is an example of a wheel created using one image per segment.</p>
+            <p>Here is an example of a wheel created using one image per segment, also includes code drawn text.</p>
             <br />
             <p>Choose a power setting then press the Spin button.</p>
             <br />
@@ -75,13 +75,19 @@
         <script>        
             // Create new wheel object specifying the parameters at creation time.
             var theWheel = new Winwheel({
-                'numSegments'  : 8,                 // Specify number of segments.
-                'outerRadius'  : 200,               // Set outer radius so wheel fits inside the background.
-                'textFontSize' : 28,                // Set font size as desired.
-                'imageOverlay' : true,              // Not required but in this case it made the segment lines look tidier.
-                'strokeStyle'  : '#eeeeee',         // Can be any valid HTML colour.
-                'drawMode'     : 'segmentImage',    // Must be segmentImage to draw wheel using one image per segemnt.
-                'segments'     :                    // Define segments including image and text.
+                'numSegments'       : 8,                 // Specify number of segments.
+                'outerRadius'       : 200,               // Set outer radius so wheel fits inside the background.
+                'drawText'          : true,              // Code drawn text can be used with segment images.
+                'textFontSize'      : 16,
+                'textOrientation'   : 'curved',
+                'textAlignment'     : 'inner',
+                'textMargin'        : '90',
+                'textFontFamily'    : 'monospace',
+                'textStrokeStyle'   : 'black',
+                'textLineWidth'     : 3,
+                'textFillStyle'     : 'white',
+                'drawMode'          : 'segmentImage',    // Must be segmentImage to draw wheel using one image per segemnt.
+                'segments'          :                    // Define segments including image and text.
                 [
                    {'image' : 'jane.png',  'text' : 'Jane'},
                    {'image' : 'tom.png',   'text' : 'Tom'},

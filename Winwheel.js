@@ -57,7 +57,8 @@ function Winwheel(options, drawWheel)
         'imageOverlay'      : false,        // If set to true in image drawing mode the outline of the segments will be displayed over the image. Does nothing in code drawMode.
         'drawText'          : true,         // By default the text of the segments is rendered in code drawMode and not in image drawMode.
         'pointerAngle'      : 0,            // Location of the pointer that indicates the prize when wheel has stopped. Default is 0 so the (corrected) 12 o'clock position.
-        'wheelImage'        : null          // Must be set to image data in order to use image to draw the wheel - drawMode must also be 'image'.
+        'wheelImage'        : null,         // Must be set to image data in order to use image to draw the wheel - drawMode must also be 'image'.
+        'imageDirection'    : 'N'           // Used when drawMode is segmentImage. Default is north, can also be (E)ast, (S)outh, (W)est.
     };
     
     // -----------------------------------------
@@ -493,8 +494,14 @@ Winwheel.prototype.drawSegmentImages = function()
                     var imageLeft = 0;
                     var imageTop = 0;
                     var imageAngle = 0;
+                    var imageDirection = '';
                     
-                    if (seg.imageDirection == 'S')
+                    if (seg.imageDirection !== null)
+                        imageDirection = seg.imageDirection;
+                    else 
+                        imageDirection = this.imageDirection;
+                    
+                    if (imageDirection == 'S')
                     {
                         // Left set so image sits half/half over the 180 degrees point.
                         imageLeft = (this.centerX - (seg.imgData.width / 2));
@@ -506,7 +513,7 @@ Winwheel.prototype.drawSegmentImages = function()
                         // Here we add 180 to the angle to the segment is poistioned correctly.
                         imageAngle = (seg.startAngle + 180 + ((seg.endAngle - seg.startAngle) / 2));
                     }
-                    else if (seg.imageDirection == 'E')
+                    else if (imageDirection == 'E')
                     {
                         // Left set so image starts and the center point.
                         imageLeft = this.centerX;
@@ -518,7 +525,7 @@ Winwheel.prototype.drawSegmentImages = function()
                         // this time we need to add 270 to that to the segment is rendered the correct place.
                         imageAngle = (seg.startAngle + 270 + ((seg.endAngle - seg.startAngle) / 2));
                     }
-                    else if (seg.imageDirection == 'W')
+                    else if (imageDirection == 'W')
                     {
                         // Left is the centerX minus the width of the image.
                         imageLeft = (this.centerX - seg.imgData.width);
@@ -1984,7 +1991,7 @@ function Segment(options)
         'textStrokeStyle'   : null,
         'textLineWidth'     : null,
         'image'             : null, // Name/path to the image
-        'imageDirection'    : 'N',  // The direction the image is facing. Can be North, South, East, West.
+        'imageDirection'    : null, // Direction of the image, can be set globally for the whole wheel.
         'imgData'           : null  // Image object created here and loaded with image data.
     };
 
@@ -2031,11 +2038,6 @@ Segment.prototype.changeImage = function(image, imageDirection)
     if (imageDirection)
     {
         this.imageDirection = imageDirection;
-    }
-    else
-    {
-        // North is the default.
-        this.imageDirection = 'N';
     }
     
     // Set imgData to a new image object, change set callback and change src (just like in wheel constructor).
