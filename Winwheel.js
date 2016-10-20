@@ -1516,26 +1516,19 @@ Winwheel.prototype.startAnimation = function()
         // Call function to compute the animation properties.
         this.computeAnimation();
         
-        //++ when have multiple wheels and an animation for one or the other is played or stopped it affects the others
-        //++ on the screen. Is there a way to give each wheel its own instance of tweenmax not affected by the other???
-        
         // Set this global variable to this object as an external function is required to call the draw() function on the wheel
         // each loop of the animation as Greensock cannot call the draw function directly on this class.
         winwheelToDrawDuringAnimation = this;
     
-        // Instruct tween to call the winwheel animation loop each tick of the animation
-        // this is required in order to re-draw the wheel and actually show the animation.
-        TweenMax.ticker.addEventListener("tick", winwheelAnimationLoop);
-    
-        //++ How do we replay the animation without resetting the wheel, or must we reset and what is an easy way to do this.
-        //++ perahps the wheel state before the animation is saved?
+        // Put together the properties of the greesock animation.
         var properties = new Array(null);
         properties[this.animation.propertyName] = this.animation.propertyValue; // Here we set the property to be animated and its value.
         properties['yoyo']       = this.animation.yoyo;     // Set others.
         properties['repeat']     = this.animation.repeat;
         properties['ease']       = this.animation.easing;
-        properties['onComplete'] = winwheelStopAnimation;   // This is always set to function outside of this class.
-        
+        properties['onUpdate']   = winwheelAnimationLoop;   // Call function to re-draw the canvas.
+        properties['onComplete'] = winwheelStopAnimation;   // Call function to perform actions when animation has finished.
+                
         // Do the tween animation passing the properties from the animation object as an array of key => value pairs.
         // Keep reference to the tween object in the wheel as that allows pausing, resuming, and stopping while the animation is still running.
         this.tween = TweenMax.to(this, this.animation.duration, properties);
@@ -1547,8 +1540,7 @@ Winwheel.prototype.startAnimation = function()
 // ==================================================================================================================================================
 Winwheel.prototype.stopAnimation = function(canCallback)
 {
-    //++ @TODO re-check if kill is the correct thing here, and if there is more than one wheel object being animated (once sort how to do that)
-    //++ what is the effect on it?
+    // @TODO as part of multiwheel, need to work out how to stop the tween for a single wheel but allow others to continue.
     
     // We can kill the animation using our tween object.
     winwheelToDrawDuringAnimation.tween.kill();
@@ -1651,10 +1643,10 @@ Winwheel.prototype.computeAnimation = function()
             }
             else
             {
-                // We need to set the internal to 360 minus what the user entered
-                // because the wheel spins past 0 without this it would indicate the
-                // prize on the opposite side of the wheel.
-                this.animation._stopAngle = (360 - this.animation.stopAngle);
+                // We need to set the internal to 360 minus what the user entered because the wheel spins past 0 without 
+                // this it would indicate the prize on the opposite side of the wheel. We aslo need to take in to account
+                // the pointerAngle as the stop angle needs to be relative to that.
+                this.animation._stopAngle = (360 - this.animation.stopAngle + this.pointerAngle);
             }
             
             if (this.animation.yoyo == null)
@@ -1758,20 +1750,26 @@ Winwheel.prototype.getRandomForSegment = function(segmentNumber)
         {
             var startAngle = this.segments[segmentNumber].startAngle;
             var endAngle = this.segments[segmentNumber].endAngle;
-            
             var range = (endAngle - startAngle) - 2;
             
             if (range > 0)
             {
                 stopAngle = (startAngle + 1 + Math.floor((Math.random() * range)));
+            } 
+            else 
+            {
+               console.log('Segment size is too small to safely get random angle inside it');
             }
-           
-            //++ At 2 degrees or less the segment is too small.
-            //++ throw some sort of error?
         }
-        //++ Error?
+        else
+        {
+            console.log('Segment ' + segmentNumber + ' undefined');
+        }
     }
-    //++ Throw error?
+    else
+    {
+        console.log('Segment number not specified');
+    }
     
     return stopAngle;
 }
@@ -1953,14 +1951,10 @@ function winwheelAnimationLoop()
 }
 
 // ====================================================================================================================
-// This function is called-back when the greensock animation has finished. We remove the event listener to the function 
-// above to stop the wheel being re-drawn all the time even though it is not animating as the greensock ticker keeps going.
+// This function is called-back when the greensock animation has finished.
 // ====================================================================================================================
 function winwheelStopAnimation(canCallback)
-{   
-    // Remove the redraw from the ticker.
-    TweenMax.ticker.removeEventListener("tick", winwheelAnimationLoop);
-    
+{
     // When the animation is stopped if canCallback is not false then try to call the callback.
     // false can be passed in to stop the after happening if the animation has been stopped before it ended normally.
     if (canCallback != false)
