@@ -1689,11 +1689,16 @@ Winwheel.prototype.stopAnimation = function(canCallback)
     // @TODO as part of multiwheel, need to work out how to stop the tween for a single wheel but allow others to continue.
     
     // We can kill the animation using our tween object.
-    winwheelToDrawDuringAnimation.tween.kill();
+    if (winwheelToDrawDuringAnimation)
+    {
+        winwheelToDrawDuringAnimation.tween.kill();
+        
+        // Call the callback function.
+        winwheelStopAnimation(canCallback);
+    }
     
-    // We should still call the external function to stop the wheel being redrawn even click and also callback any function that is supposed to be.
+    // Ensure the winwheelToDrawDuringAnimation is set to this class.
     winwheelToDrawDuringAnimation = this;
-    winwheelStopAnimation(canCallback);
 }
 
 // ==================================================================================================================================================
