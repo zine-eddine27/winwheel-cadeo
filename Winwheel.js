@@ -406,10 +406,12 @@ Winwheel.prototype.draw = function(clearTheCanvas)
             }
         }
 
-        // If this class has pins and they are to be drawn.
-        if ((this.pins !== 'undefined') && (this.pins.visible == true))
+        // If this class has pins.
+        if (typeof this.pins !== 'undefined')
         {
-            this.drawPins();
+            // If they are to be visible then draw them.
+            if (this.pins.visible == true)
+                this.drawPins();
         }
 
         // If pointer guide is display property is set to true then call function to draw the pointer guide.
