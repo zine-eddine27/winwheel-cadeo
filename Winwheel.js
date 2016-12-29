@@ -1108,6 +1108,7 @@ Winwheel.prototype.drawSegmentText = function()
 
                                 // Because the segments are smaller towards the inner of the wheel, in order for the text to fit is is a good idea that
                                 // a margin is added which pushes the text towards the outer a bit.
+
                                 // The inner radius also needs to be taken in to account as when inner aligned.
 
                                 // If fillstyle is set the draw the text filled in.
@@ -1140,7 +1141,10 @@ Winwheel.prototype.drawSegmentText = function()
                                 // due to the way the segments narrow in (is optical effect), so if a margin is specified it is placed on the inner
                                 // side so the text is pushed towards the outer.
 
-                                yPos -= yInc;
+                                // If stoke style the stroke the text.
+                                if (fillStyle)
+                                    this.ctx.fillText(lines[i], this.centerX + this.innerRadius + ((this.outerRadius - this.innerRadius) / 2) + margin, this.centerY + lineOffset);
+
                                 // If fillstyle the fill the text.
                                 if (strokeStyle)
                                     this.ctx.strokeText(lines[i], this.centerX + this.innerRadius + ((this.outerRadius - this.innerRadius) / 2) + margin, this.centerY + lineOffset);
@@ -1168,13 +1172,23 @@ Winwheel.prototype.drawSegmentText = function()
                             // The angle to draw the text at is halfway between the end and the starting angle of the segment.
                             var textAngle = seg.endAngle - ((seg.endAngle - seg.startAngle) / 2);
 
-                            // Now work out where to start rendering the string. This is half way between the inner and outer of the wheel, with the
-                            // centerAdjustment included to correctly position texts with more than one character over the center.
-                            // If there is a margin it is used to push the text away from the center of the wheel.
-                            var yPos = (this.centerY - this.innerRadius - ((this.outerRadius - this.innerRadius) / 2)) - centerAdjustment - margin;
+                            // Ensure the rotation angle of the wheel is added in, otherwise the test placement won't match
+                            // the segments they are supposed to be for.
+                            textAngle += this.rotationAngle;
 
-                            // Now loop and draw just like outer text rendering.
-                            for (var c = 0; c < seg.text.length; c++)
+                            // Rotate so can begin to place the text.
+                            this.ctx.save();
+                            this.ctx.translate(this.centerX, this.centerY);
+                            this.ctx.rotate(this.degToRad(textAngle));
+                            this.ctx.translate(-this.centerX, -this.centerY);
+
+                            // Work out the position to start drawing in based on the alignment.
+                            // If outer then when considering a segment at the 12 o'clock position want to start drawing down from the top of the wheel.
+                            if (alignment == 'outer')
+                                var yPos = (this.centerY - this.outerRadius + margin);
+                            else if (alignment == 'inner')
+                                var yPos = (this.centerY - this.innerRadius - margin);
+
                             // We need to know how much to move the y axis each time.
                             // This is not quite simply the font size as that puts a larger gap in between the letters
                             // than expected, especially with monospace fonts. I found that shaving a little off makes it look "right".
@@ -1290,6 +1304,7 @@ Winwheel.prototype.drawSegmentText = function()
                             var drawAngle = 0;
 
                             // If more than one character in the text then...
+                            if (lines[i].length > 1)
                             {
                                 // Text is drawn from the left.
                                 this.ctx.textAlign = 'left';
