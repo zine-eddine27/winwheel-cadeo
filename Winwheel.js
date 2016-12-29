@@ -795,435 +795,378 @@ Winwheel.prototype.drawSegmentText = function()
                 this.ctx.strokeStyle = strokeStyle;
                 this.ctx.lineWidth   = lineWidth;
 
-                // ---------------------------------
-                // If direction is reversed then do things differently than if normal (which is the default - see further down)
-                if (direction == 'reversed')
+                // Split the text in to multiple lines on the \n character.
+                var lines = seg.text.split('\n');
+
+                // Figure out the starting offset for the lines as when there are multiple lines need to center the text
+                // vertically in the segment (when thinking of normal horozontal text).
+                var lineOffset = 0 - (fontSize * (lines.length / 2)) + (fontSize / 2);
+
+                // The offset works great for horozontal and vertial text, also centered curved. But when the text is curved
+                // and the alignment is outer then the multiline text should not have some text outside the wheel. Same if inner curved.
+                if ((orientation == 'curved') && ((alignment == 'inner') || (alignment == 'outer')))
                 {
-                    // When drawing reversed or 'upside down' we need to do some trickery on our part.
-                    // The canvas text rendering function still draws the text left to right and the correct way up,
-                    // so we need to overcome this with rotating the opposite side of the wheel the correct way up then pulling the text
-                    // through the center point to the correct segment it is supposed to be on.
-                    if (orientation == 'horizontal')
+                    lineOffset = 0;
+                }
+
+                for(i = 0; i < lines.length; i ++)
+                {
+                    // ---------------------------------
+                    // If direction is reversed then do things differently than if normal (which is the default - see further down)
+                    if (direction == 'reversed')
                     {
-                        if (alignment == 'inner')
-                            this.ctx.textAlign = 'right';
-                        else if (alignment == 'outer')
-                            this.ctx.textAlign = 'left';
-                        else
-                            this.ctx.textAlign = 'center';
-
-                        this.ctx.textBaseline = 'middle';
-
-                        // Work out the angle to rotate the wheel, this is in the center of the segment but on the opposite side of the wheel which is why do -180.
-                        var textAngle = this.degToRad((seg.endAngle - ((seg.endAngle - seg.startAngle) / 2) + this.rotationAngle - 90) - 180);
-
-                        this.ctx.save();
-                        this.ctx.translate(this.centerX, this.centerY);
-                        this.ctx.rotate(textAngle);
-                        this.ctx.translate(-this.centerX, -this.centerY);
-
-                        if (alignment == 'inner')
+                        // When drawing reversed or 'upside down' we need to do some trickery on our part.
+                        // The canvas text rendering function still draws the text left to right and the correct way up,
+                        // so we need to overcome this with rotating the opposite side of the wheel the correct way up then pulling the text
+                        // through the center point to the correct segment it is supposed to be on.
+                        if (orientation == 'horizontal')
                         {
-                            // In reversed state the margin is subtracted from the innerX.
-                            // When inner the inner radius also comes in to play.
-                            if (fillStyle)
-                                this.ctx.fillText(seg.text, this.centerX - this.innerRadius - margin, this.centerY);
+                            if (alignment == 'inner')
+                                this.ctx.textAlign = 'right';
+                            else if (alignment == 'outer')
+                                this.ctx.textAlign = 'left';
+                            else
+                                this.ctx.textAlign = 'center';
 
-                            if (strokeStyle)
-                                this.ctx.strokeText(seg.text, this.centerX - this.innerRadius - margin, this.centerY);
-                        }
-                        else if (alignment == 'outer')
-                        {
-                            // In reversed state the position is the center minus the radius + the margin for outer aligned text.
-                            if (fillStyle)
-                                this.ctx.fillText(seg.text, this.centerX - this.outerRadius + margin, this.centerY);
-
-                            if (strokeStyle)
-                                this.ctx.strokeText(seg.text, this.centerX - this.outerRadius + margin, this.centerY);
-                        }
-                        else
-                        {
-                            // In reversed state the everything in minused.
-                            if (fillStyle)
-                                this.ctx.fillText(seg.text, this.centerX - this.innerRadius - ((this.outerRadius - this.innerRadius) / 2) - margin, this.centerY);
-
-                            if (strokeStyle)
-                                this.ctx.strokeText(seg.text, this.centerX - this.innerRadius - ((this.outerRadius - this.innerRadius) / 2) - margin, this.centerY);
-                        }
-
-                        this.ctx.restore();
-                    }
-                    else if (orientation == 'vertical')
-                    {
-                        // See normal code further down for comments on how it works, this is similar by plus/minus is reversed.
-                        this.ctx.textAlign = 'center';
-
-                        // In reversed mode this are reversed.
-                        if (alignment == 'inner')
-                            this.ctx.textBaseline = 'top';
-                        else if (alignment == 'outer')
-                            this.ctx.textBaseline = 'bottom';
-                        else
                             this.ctx.textBaseline = 'middle';
 
-                        var textAngle = (seg.endAngle - ((seg.endAngle - seg.startAngle) / 2) - 180);
-                        textAngle += this.rotationAngle;
+                            // Work out the angle to rotate the wheel, this is in the center of the segment but on the opposite side of the wheel which is why do -180.
+                            var textAngle = this.degToRad((seg.endAngle - ((seg.endAngle - seg.startAngle) / 2) + this.rotationAngle - 90) - 180);
 
-                        this.ctx.save();
-                        this.ctx.translate(this.centerX, this.centerY);
-                        this.ctx.rotate(this.degToRad(textAngle));
-                        this.ctx.translate(-this.centerX, -this.centerY);
-
-                        if (alignment == 'outer')
-                            var yPos = (this.centerY + this.outerRadius - margin);
-                        else if (alignment == 'inner')
-                            var yPos = (this.centerY + this.innerRadius + margin);
-
-                        // I have found that the text looks best when a fraction of the font size is shaved off.
-                        var yInc = (fontSize - (fontSize / 9));
-
-                        // Loop though and output the characters.
-                        if (alignment == 'outer')
-                        {
-                            // In reversed mode outer means text in 6 o'clock segment sits at bottom of the wheel and we draw up.
-                            for (var c = (seg.text.length -1); c >= 0; c--)
-                            {
-                                character = seg.text.charAt(c);
-
-                                if (fillStyle)
-                                    this.ctx.fillText(character, this.centerX, yPos);
-
-                                if (strokeStyle)
-                                    this.ctx.strokeText(character, this.centerX, yPos);
-
-                                yPos -= yInc;
-                            }
-                        }
-                        else if (alignment == 'inner')
-                        {
-                            // In reversed mode inner text is drawn from top of segment at 6 o'clock position to bottom of the wheel.
-                            for (var c = 0; c < seg.text.length; c++)
-                            {
-                                character = seg.text.charAt(c);
-
-                                if (fillStyle)
-                                    this.ctx.fillText(character, this.centerX, yPos);
-
-                                if (strokeStyle)
-                                    this.ctx.strokeText(character, this.centerX, yPos);
-
-                                yPos += yInc;
-                            }
-                        }
-                        else if (alignment == 'center')
-                        {
-                            // Again for reversed this is the opposite of before.
-                            // If there is more than one character in the text then an adjustment to the position needs to be done.
-                            // What we are aiming for is to position the center of the text at the center point between the inner and outer radius.
-                            var centerAdjustment = 0;
-
-                            if (seg.text.length > 1)
-                            {
-                                centerAdjustment = (yInc * (seg.text.length -1) / 2);
-                            }
-
-                            var yPos = (this.centerY + this.innerRadius + ((this.outerRadius - this.innerRadius) / 2)) + centerAdjustment + margin;
-
-                            for (var c = (seg.text.length -1); c >= 0; c--)
-                            {
-                                character = seg.text.charAt(c);
-
-                                if (fillStyle)
-                                    this.ctx.fillText(character, this.centerX, yPos);
-
-                                if (strokeStyle)
-                                    this.ctx.strokeText(character, this.centerX, yPos);
-
-                                yPos -= yInc;
-                            }
-                        }
-
-                        this.ctx.restore();
-                    }
-                    else if (orientation == 'curved')
-                    {
-                        // There is no built in canvas function to draw text around an arc,
-                        // so we need to do this ourselves.
-                        var radius = 0;
-
-                        // Set the alignment of the text - inner, outer, or center by calculating
-                        // how far out from the center point of the wheel the text is drawn.
-                        if (alignment == 'inner')
-                        {
-                            // When alignment is inner the radius is the innerRadius plus any margin.
-                            radius = this.innerRadius + margin;
-                            this.ctx.textBaseline = 'top';
-                        }
-                        else if (alignment == 'outer')
-                        {
-                            // Outer it is the outerRadius minus any margin.
-                            radius = this.outerRadius - margin;
-                            this.ctx.textBaseline = 'bottom';
-                        }
-                        else if (alignment == 'center')
-                        {
-                            // When center we want the text halfway between the inner and outer radius.
-                            radius = this.innerRadius + margin + ((this.outerRadius - this.innerRadius) / 2);
-                            this.ctx.textBaseline = 'middle';
-                        }
-
-                        // Set the angle to increment by when looping though and outputting the characters in the text
-                        // as we do this by rotating the wheel small amounts adding each character.
-                        var anglePerChar = 0;
-                        var drawAngle = 0;
-
-                        // If more than one character in the text then...
-                        if (seg.text.length > 1)
-                        {
-                            // Text is drawn from the left.
-                            this.ctx.textAlign = 'left';
-
-                            // Work out how much angle the text rendering loop below needs to rotate by for each character to render them next to each other.
-                            // I have discovered that 4 * the font size / 10 at 100px radius is the correct spacing for between the characters
-                            // using a monospace font, non monospace may look a little odd as in there will appear to be extra spaces between chars.
-                            anglePerChar = (4 * (fontSize / 10));
-
-                            // Work out what percentage the radius the text will be drawn at is of 100px.
-                            radiusPercent = (100 / radius);
-
-                            // Then use this to scale up or down the anglePerChar value.
-                            // When the radius is less than 100px we need more angle between the letters, when radius is greater (so the text is further
-                            // away from the center of the wheel) the angle needs to be less otherwise the characters will appear further apart.
-                            anglePerChar = (anglePerChar * radiusPercent);
-
-                            // Next we want the text to be drawn in the middle of the segment, without this it would start at the beginning of the segment.
-                            // To do this we need to work out how much arc the text will take up in total then subtract half of this from the center
-                            // of the segment so that it sits centred.
-                            totalArc = (anglePerChar * seg.text.length);
-
-                            // Now set initial draw angle to half way between the start and end of the segment.
-                            drawAngle = seg.startAngle + (((seg.endAngle - seg.startAngle) / 2) - (totalArc / 2));
-                        }
-                        else
-                        {
-                            // The initial draw angle is the center of the segment when only one character.
-                            drawAngle = (seg.startAngle + ((seg.endAngle - seg.startAngle) / 2));
-
-                            // To ensure is dead-center the text alignment also needs to be centered.
-                            this.ctx.textAlign = 'center';
-                        }
-
-                        // ----------------------
-                        // Adjust the initial draw angle as needed to take in to account the rotationAngle of the wheel.
-                        drawAngle += this.rotationAngle;
-
-                        // And as with other 'reverse' text direction functions we need to subtract 180 degrees from the angle
-                        // because when it comes to draw the characters in the loop below we add the radius instead of subtract it.
-                        drawAngle -= 180;
-
-                        // ----------------------
-                        // Now the drawing itself.
-                        // In reversed direction mode we loop through the characters in the text backwards in order for them to appear on screen correctly
-                        for (c = seg.text.length; c >= 0; c--)
-                        {
                             this.ctx.save();
-
-                            character = seg.text.charAt(c);
-
-                            // Rotate the wheel to the draw angle as we need to add the character at this location.
                             this.ctx.translate(this.centerX, this.centerY);
-                            this.ctx.rotate(this.degToRad(drawAngle));
+                            this.ctx.rotate(textAngle);
                             this.ctx.translate(-this.centerX, -this.centerY);
 
-                            // Now draw the character directly below the center point of the wheel at the appropriate radius.
-                            // Note in the reversed mode we add the radius to the this.centerY instead of subtract.
-                            if (strokeStyle)
-                                this.ctx.strokeText(character, this.centerX, this.centerY + radius);
+                            if (alignment == 'inner')
+                            {
+                                // In reversed state the margin is subtracted from the innerX.
+                                // When inner the inner radius also comes in to play.
+                                if (fillStyle)
+                                    this.ctx.fillText(lines[i], this.centerX - this.innerRadius - margin, this.centerY + lineOffset);
 
-                            if (fillStyle)
-                                this.ctx.fillText(character, this.centerX, this.centerY + radius);
+                                if (strokeStyle)
+                                    this.ctx.strokeText(lines[i], this.centerX - this.innerRadius - margin, this.centerY + lineOffset);
+                            }
+                            else if (alignment == 'outer')
+                            {
+                                // In reversed state the position is the center minus the radius + the margin for outer aligned text.
+                                if (fillStyle)
+                                    this.ctx.fillText(lines[i], this.centerX - this.outerRadius + margin, this.centerY + lineOffset);
 
-                            // Increment the drawAngle by the angle per character so next loop we rotate
-                            // to the next angle required to draw the character at.
-                            drawAngle += anglePerChar;
+                                if (strokeStyle)
+                                    this.ctx.strokeText(lines[i], this.centerX - this.outerRadius + margin, this.centerY + lineOffset);
+                            }
+                            else
+                            {
+                                // In reversed state the everything in minused.
+                                if (fillStyle)
+                                    this.ctx.fillText(lines[i], this.centerX - this.innerRadius - ((this.outerRadius - this.innerRadius) / 2) - margin, this.centerY + lineOffset);
+
+                                if (strokeStyle)
+                                    this.ctx.strokeText(lines[i], this.centerX - this.innerRadius - ((this.outerRadius - this.innerRadius) / 2) - margin, this.centerY + lineOffset);
+                            }
 
                             this.ctx.restore();
                         }
-                    }
-                }
-                else
-                {
-                    // Normal direction so do things normally.
-                    // Check text orientation, of horizontal then reasonably straight forward, if vertical then a bit more work to do.
-                    if (orientation == 'horizontal')
-                    {
-                        // Based on the text alignment, set the correct value in the context.
-                        if (alignment == 'inner')
-                            this.ctx.textAlign = 'left';
-                        else if (alignment == 'outer')
-                            this.ctx.textAlign = 'right';
-                        else
+                        else if (orientation == 'vertical')
+                        {
+                            // See normal code further down for comments on how it works, this is similar by plus/minus is reversed.
                             this.ctx.textAlign = 'center';
 
-                        // Set this too.
-                        this.ctx.textBaseline = 'middle';
+                            // In reversed mode this are reversed.
+                            if (alignment == 'inner')
+                                this.ctx.textBaseline = 'top';
+                            else if (alignment == 'outer')
+                                this.ctx.textBaseline = 'bottom';
+                            else
+                                this.ctx.textBaseline = 'middle';
 
-                        // Work out the angle around the wheel to draw the text at, which is simply in the middle of the segment the text is for.
-                        // The rotation angle is added in to correct the annoyance with the canvas arc drawing functions which put the 0 degrees at the 3 oclock
-                        var textAngle = this.degToRad(seg.endAngle - ((seg.endAngle - seg.startAngle) / 2) + this.rotationAngle - 90);
+                            var textAngle = (seg.endAngle - ((seg.endAngle - seg.startAngle) / 2) - 180);
+                            textAngle += this.rotationAngle;
 
-                        // We need to rotate in order to draw the text because it is output horizontally, so to
-                        // place correctly around the wheel for all but a segment at 3 o'clock we need to rotate.
-                        this.ctx.save();
-                        this.ctx.translate(this.centerX, this.centerY);
-                        this.ctx.rotate(textAngle);
-                        this.ctx.translate(-this.centerX, -this.centerY);
+                            this.ctx.save();
+                            this.ctx.translate(this.centerX, this.centerY);
+                            this.ctx.rotate(this.degToRad(textAngle));
+                            this.ctx.translate(-this.centerX, -this.centerY);
 
-                        // --------------------------
-                        // Draw the text based on its alignment adding margin if inner or outer.
-                        if (alignment == 'inner')
-                        {
-                            // Inner means that the text is aligned with the inner of the wheel. If looking at a segment in in the 3 o'clock position
-                            // it would look like the text is left aligned within the segment.
+                            if (alignment == 'outer')
+                                var yPos = (this.centerY + this.outerRadius - margin);
+                            else if (alignment == 'inner')
+                                var yPos = (this.centerY + this.innerRadius + margin);
 
-                            // Because the segments are smaller towards the inner of the wheel, in order for the text to fit is is a good idea that
-                            // a margin is added which pushes the text towards the outer a bit.
+                            // I have found that the text looks best when a fraction of the font size is shaved off.
+                            var yInc = (fontSize - (fontSize / 9));
 
-                            // The inner radius also needs to be taken in to account as when inner aligned.
+                            // Loop though and output the characters.
+                            if (alignment == 'outer')
+                            {
+                                // In reversed mode outer means text in 6 o'clock segment sits at bottom of the wheel and we draw up.
+                                for (var c = (lines[i].length -1); c >= 0; c--)
+                                {
+                                    character = lines[i].charAt(c);
 
-                            // If fillstyle is set the draw the text filled in.
-                            if (fillStyle)
-                                this.ctx.fillText(seg.text, this.centerX + this.innerRadius + margin, this.centerY);
+                                    if (fillStyle)
+                                        this.ctx.fillText(character, this.centerX + lineOffset, yPos);
 
-                            // If stroke style is set draw the text outline.
-                            if (strokeStyle)
-                                this.ctx.strokeText(seg.text, this.centerX + this.innerRadius + margin, this.centerY);
+                                    if (strokeStyle)
+                                        this.ctx.strokeText(character, this.centerX + lineOffset, yPos);
+
+                                    yPos -= yInc;
+                                }
+                            }
+                            else if (alignment == 'inner')
+                            {
+                                // In reversed mode inner text is drawn from top of segment at 6 o'clock position to bottom of the wheel.
+                                for (var c = 0; c < lines[i].length; c++)
+                                {
+                                    character = lines[i].charAt(c);
+
+                                    if (fillStyle)
+                                        this.ctx.fillText(character, this.centerX + lineOffset, yPos);
+
+                                    if (strokeStyle)
+                                        this.ctx.strokeText(character, this.centerX + lineOffset, yPos);
+
+                                    yPos += yInc;
+                                }
+                            }
+                            else if (alignment == 'center')
+                            {
+                                // Again for reversed this is the opposite of before.
+                                // If there is more than one character in the text then an adjustment to the position needs to be done.
+                                // What we are aiming for is to position the center of the text at the center point between the inner and outer radius.
+                                var centerAdjustment = 0;
+
+                                if (lines[i].length > 1)
+                                {
+                                    centerAdjustment = (yInc * (lines[i].length -1) / 2);
+                                }
+
+                                var yPos = (this.centerY + this.innerRadius + ((this.outerRadius - this.innerRadius) / 2)) + centerAdjustment + margin;
+
+                                for (var c = (lines[i].length -1); c >= 0; c--)
+                                {
+                                    character = lines[i].charAt(c);
+
+                                    if (fillStyle)
+                                        this.ctx.fillText(character, this.centerX + lineOffset, yPos);
+
+                                    if (strokeStyle)
+                                        this.ctx.strokeText(character, this.centerX + lineOffset, yPos);
+
+                                    yPos -= yInc;
+                                }
+                            }
+
+                            this.ctx.restore();
                         }
-                        else if (alignment == 'outer')
+                        else if (orientation == 'curved')
                         {
-                            // Outer means the text is aligned with the outside of the wheel, so if looking at a segment in the 3 o'clock position
-                            // it would appear the text is right aligned. To position we add the radius of the wheel in to the equation
-                            // and subtract the margin this time, rather than add it.
+                            // There is no built in canvas function to draw text around an arc,
+                            // so we need to do this ourselves.
+                            var radius = 0;
 
-                            // I don't understand why, but in order of the text to render correctly with stroke and fill, the stroke needs to
-                            // come first when drawing outer, rather than second when doing inner.
-                            if (fillStyle)
-                                this.ctx.fillText(seg.text, this.centerX + this.outerRadius - margin, this.centerY);
+                            // Set the alignment of the text - inner, outer, or center by calculating
+                            // how far out from the center point of the wheel the text is drawn.
+                            if (alignment == 'inner')
+                            {
+                                // When alignment is inner the radius is the innerRadius plus any margin.
+                                radius = this.innerRadius + margin;
+                                this.ctx.textBaseline = 'top';
+                            }
+                            else if (alignment == 'outer')
+                            {
+                                // Outer it is the outerRadius minus any margin.
+                                radius = this.outerRadius - margin;
+                                this.ctx.textBaseline = 'bottom';
 
-                            // If fillstyle the fill the text.
-                            if (strokeStyle)
-                                this.ctx.strokeText(seg.text, this.centerX + this.outerRadius - margin, this.centerY);
+                                // We need to adjust the radius in this case to take in to multiline text.
+                                // In this case the radius needs to be further out, not at the inner radius.
+                                radius -= (fontSize * (lines.length - 1));
+                            }
+                            else if (alignment == 'center')
+                            {
+                                // When center we want the text halfway between the inner and outer radius.
+                                radius = this.innerRadius + margin + ((this.outerRadius - this.innerRadius) / 2);
+                                this.ctx.textBaseline = 'middle';
+                            }
+
+                            // Set the angle to increment by when looping though and outputting the characters in the text
+                            // as we do this by rotating the wheel small amounts adding each character.
+                            var anglePerChar = 0;
+                            var drawAngle = 0;
+
+                            // If more than one character in the text then...
+                            if (lines[i].length > 1)
+                            {
+                                // Text is drawn from the left.
+                                this.ctx.textAlign = 'left';
+
+                                // Work out how much angle the text rendering loop below needs to rotate by for each character to render them next to each other.
+                                // I have discovered that 4 * the font size / 10 at 100px radius is the correct spacing for between the characters
+                                // using a monospace font, non monospace may look a little odd as in there will appear to be extra spaces between chars.
+                                anglePerChar = (4 * (fontSize / 10));
+
+                                // Work out what percentage the radius the text will be drawn at is of 100px.
+                                radiusPercent = (100 / radius);
+
+                                // Then use this to scale up or down the anglePerChar value.
+                                // When the radius is less than 100px we need more angle between the letters, when radius is greater (so the text is further
+                                // away from the center of the wheel) the angle needs to be less otherwise the characters will appear further apart.
+                                anglePerChar = (anglePerChar * radiusPercent);
+
+                                // Next we want the text to be drawn in the middle of the segment, without this it would start at the beginning of the segment.
+                                // To do this we need to work out how much arc the text will take up in total then subtract half of this from the center
+                                // of the segment so that it sits centred.
+                                totalArc = (anglePerChar * lines[i].length);
+
+                                // Now set initial draw angle to half way between the start and end of the segment.
+                                drawAngle = seg.startAngle + (((seg.endAngle - seg.startAngle) / 2) - (totalArc / 2));
+                            }
+                            else
+                            {
+                                // The initial draw angle is the center of the segment when only one character.
+                                drawAngle = (seg.startAngle + ((seg.endAngle - seg.startAngle) / 2));
+
+                                // To ensure is dead-center the text alignment also needs to be centered.
+                                this.ctx.textAlign = 'center';
+                            }
+
+                            // ----------------------
+                            // Adjust the initial draw angle as needed to take in to account the rotationAngle of the wheel.
+                            drawAngle += this.rotationAngle;
+
+                            // And as with other 'reverse' text direction functions we need to subtract 180 degrees from the angle
+                            // because when it comes to draw the characters in the loop below we add the radius instead of subtract it.
+                            drawAngle -= 180;
+
+                            // ----------------------
+                            // Now the drawing itself.
+                            // In reversed direction mode we loop through the characters in the text backwards in order for them to appear on screen correctly
+                            for (c = lines[i].length; c >= 0; c--)
+                            {
+                                this.ctx.save();
+
+                                character = lines[i].charAt(c);
+
+                                // Rotate the wheel to the draw angle as we need to add the character at this location.
+                                this.ctx.translate(this.centerX, this.centerY);
+                                this.ctx.rotate(this.degToRad(drawAngle));
+                                this.ctx.translate(-this.centerX, -this.centerY);
+
+                                // Now draw the character directly below the center point of the wheel at the appropriate radius.
+                                // Note in the reversed mode we add the radius to the this.centerY instead of subtract.
+                                if (strokeStyle)
+                                    this.ctx.strokeText(character, this.centerX, this.centerY + radius + lineOffset);
+
+                                if (fillStyle)
+                                    this.ctx.fillText(character, this.centerX, this.centerY + radius + lineOffset);
+
+                                // Increment the drawAngle by the angle per character so next loop we rotate
+                                // to the next angle required to draw the character at.
+                                drawAngle += anglePerChar;
+
+                                this.ctx.restore();
+                            }
                         }
-                        else
-                        {
-                            // In this case the text is to drawn centred in the segment.
-                            // Typically no margin is required, however even though centred the text can look closer to the inner of the wheel
-                            // due to the way the segments narrow in (is optical effect), so if a margin is specified it is placed on the inner
-                            // side so the text is pushed towards the outer.
-
-                            // If stoke style the stroke the text.
-                            if (fillStyle)
-                                this.ctx.fillText(seg.text, this.centerX + this.innerRadius + ((this.outerRadius - this.innerRadius) / 2) + margin, this.centerY);
-
-                            // If fillstyle the fill the text.
-                            if (strokeStyle)
-                                this.ctx.strokeText(seg.text, this.centerX + this.innerRadius + ((this.outerRadius - this.innerRadius) / 2) + margin, this.centerY);
-                        }
-
-                        // Restore the context so that wheel is returned to original position.
-                        this.ctx.restore();
                     }
-                    else if (orientation == 'vertical')
+                    else
                     {
-                        // If vertical then we need to do this ourselves because as far as I am aware there is no option built in to html canvas
-                        // which causes the text to draw downwards or upwards one character after another.
+                        // Normal direction so do things normally.
+                        // Check text orientation, of horizontal then reasonably straight forward, if vertical then a bit more work to do.
+                        if (orientation == 'horizontal')
+                        {
+                            // Based on the text alignment, set the correct value in the context.
+                            if (alignment == 'inner')
+                                this.ctx.textAlign = 'left';
+                            else if (alignment == 'outer')
+                                this.ctx.textAlign = 'right';
+                            else
+                                this.ctx.textAlign = 'center';
 
-                        // In this case the textAlign is always center, but the baseline is either top or bottom
-                        // depending on if inner or outer alignment has been specified.
-                        this.ctx.textAlign = 'center';
-
-                        if (alignment == 'inner')
-                            this.ctx.textBaseline = 'bottom';
-                        else if (alignment == 'outer')
-                            this.ctx.textBaseline = 'top';
-                        else
+                            // Set this too.
                             this.ctx.textBaseline = 'middle';
 
-                        // The angle to draw the text at is halfway between the end and the starting angle of the segment.
-                        var textAngle = seg.endAngle - ((seg.endAngle - seg.startAngle) / 2);
+                            // Work out the angle around the wheel to draw the text at, which is simply in the middle of the segment the text is for.
+                            // The rotation angle is added in to correct the annoyance with the canvas arc drawing functions which put the 0 degrees at the 3 oclock
+                            var textAngle = this.degToRad(seg.endAngle - ((seg.endAngle - seg.startAngle) / 2) + this.rotationAngle - 90);
 
-                        // Ensure the rotation angle of the wheel is added in, otherwise the test placement won't match
-                        // the segments they are supposed to be for.
-                        textAngle += this.rotationAngle;
+                            // We need to rotate in order to draw the text because it is output horizontally, so to
+                            // place correctly around the wheel for all but a segment at 3 o'clock we need to rotate.
+                            this.ctx.save();
+                            this.ctx.translate(this.centerX, this.centerY);
+                            this.ctx.rotate(textAngle);
+                            this.ctx.translate(-this.centerX, -this.centerY);
 
-                        // Rotate so can begin to place the text.
-                        this.ctx.save();
-                        this.ctx.translate(this.centerX, this.centerY);
-                        this.ctx.rotate(this.degToRad(textAngle));
-                        this.ctx.translate(-this.centerX, -this.centerY);
-
-                        // Work out the position to start drawing in based on the alignment.
-                        // If outer then when considering a segment at the 12 o'clock position want to start drawing down from the top of the wheel.
-                        if (alignment == 'outer')
-                            var yPos = (this.centerY - this.outerRadius + margin);
-                        else if (alignment == 'inner')
-                            var yPos = (this.centerY - this.innerRadius - margin);
-
-                        // We need to know how much to move the y axis each time.
-                        // This is not quite simply the font size as that puts a larger gap in between the letters
-                        // than expected, especially with monospace fonts. I found that shaving a little off makes it look "right".
-                        var yInc = (fontSize - (fontSize / 9));
-
-                        // Loop though and output the characters.
-                        if (alignment == 'outer')
-                        {
-                            // For this alignment we draw down from the top of a segment at the 12 o'clock position to simply
-                            // loop though the characters in order.
-                            for (var c = 0; c < seg.text.length; c++)
+                            // --------------------------
+                            // Draw the text based on its alignment adding margin if inner or outer.
+                            if (alignment == 'inner')
                             {
-                                character = seg.text.charAt(c);
+                                // Inner means that the text is aligned with the inner of the wheel. If looking at a segment in in the 3 o'clock position
+                                // it would look like the text is left aligned within the segment.
 
+                                // Because the segments are smaller towards the inner of the wheel, in order for the text to fit is is a good idea that
+                                // a margin is added which pushes the text towards the outer a bit.
+                                // The inner radius also needs to be taken in to account as when inner aligned.
+
+                                // If fillstyle is set the draw the text filled in.
                                 if (fillStyle)
-                                    this.ctx.fillText(character, this.centerX, yPos);
+                                    this.ctx.fillText(lines[i], this.centerX + this.innerRadius + margin, this.centerY + lineOffset);
 
+                                // If stroke style is set draw the text outline.
                                 if (strokeStyle)
-                                    this.ctx.strokeText(character, this.centerX, yPos);
-
-                                yPos += yInc;
+                                    this.ctx.strokeText(lines[i], this.centerX + this.innerRadius + margin, this.centerY + lineOffset);
                             }
-                        }
-                        else if (alignment == 'inner')
-                        {
-                            // Here we draw from the inner of the wheel up, but in order for the letters in the text text to
-                            // remain in the correct order when reading, we actually need to loop though the text characters backwards.
-                            for (var c = (seg.text.length -1); c >= 0; c--)
+                            else if (alignment == 'outer')
                             {
-                                character = seg.text.charAt(c);
+                                // Outer means the text is aligned with the outside of the wheel, so if looking at a segment in the 3 o'clock position
+                                // it would appear the text is right aligned. To position we add the radius of the wheel in to the equation
+                                // and subtract the margin this time, rather than add it.
 
+                                // I don't understand why, but in order of the text to render correctly with stroke and fill, the stroke needs to
+                                // come first when drawing outer, rather than second when doing inner.
                                 if (fillStyle)
-                                    this.ctx.fillText(character, this.centerX, yPos);
+                                    this.ctx.fillText(lines[i], this.centerX + this.outerRadius - margin, this.centerY + lineOffset);
 
+                                // If fillstyle the fill the text.
                                 if (strokeStyle)
-                                    this.ctx.strokeText(character, this.centerX, yPos);
+                                    this.ctx.strokeText(lines[i], this.centerX + this.outerRadius - margin, this.centerY + lineOffset);
+                            }
+                            else
+                            {
+                                // In this case the text is to drawn centred in the segment.
+                                // Typically no margin is required, however even though centred the text can look closer to the inner of the wheel
+                                // due to the way the segments narrow in (is optical effect), so if a margin is specified it is placed on the inner
+                                // side so the text is pushed towards the outer.
 
                                 yPos -= yInc;
+                                // If fillstyle the fill the text.
+                                if (strokeStyle)
+                                    this.ctx.strokeText(lines[i], this.centerX + this.innerRadius + ((this.outerRadius - this.innerRadius) / 2) + margin, this.centerY + lineOffset);
                             }
+
+                            // Restore the context so that wheel is returned to original position.
+                            this.ctx.restore();
                         }
-                        else if (alignment == 'center')
+                        else if (orientation == 'vertical')
                         {
-                            // This is the most complex of the three as we need to draw the text top down centred between the inner and outer of the wheel.
-                            // So logically we have to put the middle character of the text in the center then put the others each side of it.
-                            // In reality that is a really bad way to do it, we can achieve the same if not better positioning using a
-                            // variation on the method used for the rendering of outer aligned text once we have figured out the height of the text.
+                            // If vertical then we need to do this ourselves because as far as I am aware there is no option built in to html canvas
+                            // which causes the text to draw downwards or upwards one character after another.
 
-                            // If there is more than one character in the text then an adjustment to the position needs to be done.
-                            // What we are aiming for is to position the center of the text at the center point between the inner and outer radius.
-                            var centerAdjustment = 0;
+                            // In this case the textAlign is always center, but the baseline is either top or bottom
+                            // depending on if inner or outer alignment has been specified.
+                            this.ctx.textAlign = 'center';
 
-                            if (seg.text.length > 1)
-                            {
-                                centerAdjustment = (yInc * (seg.text.length -1) / 2);
-                            }
+                            if (alignment == 'inner')
+                                this.ctx.textBaseline = 'bottom';
+                            else if (alignment == 'outer')
+                                this.ctx.textBaseline = 'top';
+                            else
+                                this.ctx.textBaseline = 'middle';
+
+                            // The angle to draw the text at is halfway between the end and the starting angle of the segment.
+                            var textAngle = seg.endAngle - ((seg.endAngle - seg.startAngle) / 2);
 
                             // Now work out where to start rendering the string. This is half way between the inner and outer of the wheel, with the
                             // centerAdjustment included to correctly position texts with more than one character over the center.
@@ -1232,121 +1175,191 @@ Winwheel.prototype.drawSegmentText = function()
 
                             // Now loop and draw just like outer text rendering.
                             for (var c = 0; c < seg.text.length; c++)
+                            // We need to know how much to move the y axis each time.
+                            // This is not quite simply the font size as that puts a larger gap in between the letters
+                            // than expected, especially with monospace fonts. I found that shaving a little off makes it look "right".
+                            var yInc = (fontSize - (fontSize / 9));
+
+                            // Loop though and output the characters.
+                            if (alignment == 'outer')
                             {
-                                character = seg.text.charAt(c);
+                                // For this alignment we draw down from the top of a segment at the 12 o'clock position to simply
+                                // loop though the characters in order.
+                                for (var c = 0; c < lines[i].length; c++)
+                                {
+                                    character = lines[i].charAt(c);
 
-                                if (fillStyle)
-                                    this.ctx.fillText(character, this.centerX, yPos);
+                                    if (fillStyle)
+                                        this.ctx.fillText(character, this.centerX + lineOffset, yPos);
 
-                                if (strokeStyle)
-                                    this.ctx.strokeText(character, this.centerX, yPos);
+                                    if (strokeStyle)
+                                        this.ctx.strokeText(character, this.centerX + lineOffset, yPos);
 
-                                yPos += yInc;
+                                    yPos += yInc;
+                                }
                             }
-                        }
+                            else if (alignment == 'inner')
+                            {
+                                // Here we draw from the inner of the wheel up, but in order for the letters in the text text to
+                                // remain in the correct order when reading, we actually need to loop though the text characters backwards.
+                                for (var c = (lines[i].length -1); c >= 0; c--)
+                                {
+                                    character = lines[i].charAt(c);
 
-                        this.ctx.restore();
-                    }
-                    else if (orientation == 'curved')
-                    {
-                        // There is no built in canvas function to draw text around an arc, so
-                        // we need to do this ourselves.
-                        var radius = 0;
+                                    if (fillStyle)
+                                        this.ctx.fillText(character, this.centerX + lineOffset, yPos);
 
-                        // Set the alignment of the text - inner, outer, or center by calculating
-                        // how far out from the center point of the wheel the text is drawn.
-                        if (alignment == 'inner')
-                        {
-                            // When alignment is inner the radius is the innerRadius plus any margin.
-                            radius = this.innerRadius + margin;
-                            this.ctx.textBaseline = 'bottom';
-                        }
-                        else if (alignment == 'outer')
-                        {
-                            // Outer it is the outerRadius minus any margin.
-                            radius = this.outerRadius - margin;
-                            this.ctx.textBaseline = 'top';
-                        }
-                        else if (alignment == 'center')
-                        {
-                            // When center we want the text halfway between the inner and outer radius.
-                            radius = this.innerRadius + margin + ((this.outerRadius - this.innerRadius) / 2);
-                            this.ctx.textBaseline = 'middle';
-                        }
+                                    if (strokeStyle)
+                                        this.ctx.strokeText(character, this.centerX + lineOffset, yPos);
 
-                        // Set the angle to increment by when looping though and outputting the characters in the text
-                        // as we do this by rotating the wheel small amounts adding each character.
-                        var anglePerChar = 0;
-                        var drawAngle = 0;
+                                    yPos -= yInc;
+                                }
+                            }
+                            else if (alignment == 'center')
+                            {
+                                // This is the most complex of the three as we need to draw the text top down centred between the inner and outer of the wheel.
+                                // So logically we have to put the middle character of the text in the center then put the others each side of it.
+                                // In reality that is a really bad way to do it, we can achieve the same if not better positioning using a
+                                // variation on the method used for the rendering of outer aligned text once we have figured out the height of the text.
 
-                        // If more than one character in the text then...
-                        if (seg.text.length > 1)
-                        {
-                            // Text is drawn from the left.
-                            this.ctx.textAlign = 'left';
+                                // If there is more than one character in the text then an adjustment to the position needs to be done.
+                                // What we are aiming for is to position the center of the text at the center point between the inner and outer radius.
+                                var centerAdjustment = 0;
 
-                            // Work out how much angle the text rendering loop below needs to rotate by for each character to render them next to each other.
-                            // I have discovered that 4 * the font size / 10 at 100px radius is the correct spacing for between the characters
-                            // using a monospace font, non monospace may look a little odd as in there will appear to be extra spaces between chars.
-                            anglePerChar = (4 * (fontSize / 10));
+                                if (lines[i].length > 1)
+                                {
+                                    centerAdjustment = (yInc * (lines[i].length -1) / 2);
+                                }
 
-                            // Work out what percentage the radius the text will be drawn at is of 100px.
-                            radiusPercent = (100 / radius);
+                                // Now work out where to start rendering the string. This is half way between the inner and outer of the wheel, with the
+                                // centerAdjustment included to correctly position texts with more than one character over the center.
+                                // If there is a margin it is used to push the text away from the center of the wheel.
+                                var yPos = (this.centerY - this.innerRadius - ((this.outerRadius - this.innerRadius) / 2)) - centerAdjustment - margin;
 
-                            // Then use this to scale up or down the anglePerChar value.
-                            // When the radius is less than 100px we need more angle between the letters, when radius is greater (so the text is further
-                            // away from the center of the wheel) the angle needs to be less otherwise the characters will appear further apart.
-                            anglePerChar = (anglePerChar * radiusPercent);
+                                // Now loop and draw just like outer text rendering.
+                                for (var c = 0; c < lines[i].length; c++)
+                                {
+                                    character = lines[i].charAt(c);
 
-                            // Next we want the text to be drawn in the middle of the segment, without this it would start at the beginning of the segment.
-                            // To do this we need to work out how much arc the text will take up in total then subtract half of this from the center
-                            // of the segment so that it sits centred.
-                            totalArc = (anglePerChar * seg.text.length);
+                                    if (fillStyle)
+                                        this.ctx.fillText(character, this.centerX + lineOffset, yPos);
 
-                            // Now set initial draw angle to half way between the start and end of the segment.
-                            drawAngle = seg.startAngle + (((seg.endAngle - seg.startAngle) / 2) - (totalArc / 2));
-                        }
-                        else
-                        {
-                            // The initial draw angle is the center of the segment when only one character.
-                            drawAngle = (seg.startAngle + ((seg.endAngle - seg.startAngle) / 2));
+                                    if (strokeStyle)
+                                        this.ctx.strokeText(character, this.centerX + lineOffset, yPos);
 
-                            // To ensure is dead-center the text alignment also needs to be centred.
-                            this.ctx.textAlign = 'center';
-                        }
-
-                        // ----------------------
-                        // Adjust the initial draw angle as needed to take in to account the rotationAngle of the wheel.
-                        drawAngle += this.rotationAngle;
-
-                        // ----------------------
-                        // Now the drawing itself.
-                        // Loop for each character in the text.
-                        for (c = 0; c < (seg.text.length); c++)
-                        {
-                            this.ctx.save();
-
-                            character = seg.text.charAt(c);
-
-                            // Rotate the wheel to the draw angle as we need to add the character at this location.
-                            this.ctx.translate(this.centerX, this.centerY);
-                            this.ctx.rotate(this.degToRad(drawAngle));
-                            this.ctx.translate(-this.centerX, -this.centerY);
-
-                            // Now draw the character directly above the center point of the wheel at the appropriate radius.
-                            if (strokeStyle)
-                                this.ctx.strokeText(character, this.centerX, this.centerY - radius);
-
-                            if (fillStyle)
-                                this.ctx.fillText(character, this.centerX, this.centerY - radius);
-
-                            // Increment the drawAngle by the angle per character so next loop we rotate
-                            // to the next angle required to draw the character at.
-                            drawAngle += anglePerChar;
+                                    yPos += yInc;
+                                }
+                            }
 
                             this.ctx.restore();
                         }
+                        else if (orientation == 'curved')
+                        {
+                            // There is no built in canvas function to draw text around an arc, so
+                            // we need to do this ourselves.
+                            var radius = 0;
+
+                            // Set the alignment of the text - inner, outer, or center by calculating
+                            // how far out from the center point of the wheel the text is drawn.
+                            if (alignment == 'inner')
+                            {
+                                // When alignment is inner the radius is the innerRadius plus any margin.
+                                radius = this.innerRadius + margin;
+                                this.ctx.textBaseline = 'bottom';
+
+                                // We need to adjust the radius in this case to take in to multiline text.
+                                // In this case the radius needs to be further out, not at the inner radius.
+                                radius += (fontSize * (lines.length - 1));
+                            }
+                            else if (alignment == 'outer')
+                            {
+                                // Outer it is the outerRadius minus any margin.
+                                radius = this.outerRadius - margin;
+                                this.ctx.textBaseline = 'top';
+                            }
+                            else if (alignment == 'center')
+                            {
+                                // When center we want the text halfway between the inner and outer radius.
+                                radius = this.innerRadius + margin + ((this.outerRadius - this.innerRadius) / 2);
+                                this.ctx.textBaseline = 'middle';
+                            }
+
+                            // Set the angle to increment by when looping though and outputting the characters in the text
+                            // as we do this by rotating the wheel small amounts adding each character.
+                            var anglePerChar = 0;
+                            var drawAngle = 0;
+
+                            // If more than one character in the text then...
+                            {
+                                // Text is drawn from the left.
+                                this.ctx.textAlign = 'left';
+
+                                // Work out how much angle the text rendering loop below needs to rotate by for each character to render them next to each other.
+                                // I have discovered that 4 * the font size / 10 at 100px radius is the correct spacing for between the characters
+                                // using a monospace font, non monospace may look a little odd as in there will appear to be extra spaces between chars.
+                                anglePerChar = (4 * (fontSize / 10));
+
+                                // Work out what percentage the radius the text will be drawn at is of 100px.
+                                radiusPercent = (100 / radius);
+
+                                // Then use this to scale up or down the anglePerChar value.
+                                // When the radius is less than 100px we need more angle between the letters, when radius is greater (so the text is further
+                                // away from the center of the wheel) the angle needs to be less otherwise the characters will appear further apart.
+                                anglePerChar = (anglePerChar * radiusPercent);
+
+                                // Next we want the text to be drawn in the middle of the segment, without this it would start at the beginning of the segment.
+                                // To do this we need to work out how much arc the text will take up in total then subtract half of this from the center
+                                // of the segment so that it sits centred.
+                                totalArc = (anglePerChar * lines[i].length);
+
+                                // Now set initial draw angle to half way between the start and end of the segment.
+                                drawAngle = seg.startAngle + (((seg.endAngle - seg.startAngle) / 2) - (totalArc / 2));
+                            }
+                            else
+                            {
+                                // The initial draw angle is the center of the segment when only one character.
+                                drawAngle = (seg.startAngle + ((seg.endAngle - seg.startAngle) / 2));
+
+                                // To ensure is dead-center the text alignment also needs to be centred.
+                                this.ctx.textAlign = 'center';
+                            }
+
+                            // ----------------------
+                            // Adjust the initial draw angle as needed to take in to account the rotationAngle of the wheel.
+                            drawAngle += this.rotationAngle;
+
+                            // ----------------------
+                            // Now the drawing itself.
+                            // Loop for each character in the text.
+                            for (c = 0; c < (lines[i].length); c++)
+                            {
+                                this.ctx.save();
+
+                                character = lines[i].charAt(c);
+
+                                // Rotate the wheel to the draw angle as we need to add the character at this location.
+                                this.ctx.translate(this.centerX, this.centerY);
+                                this.ctx.rotate(this.degToRad(drawAngle));
+                                this.ctx.translate(-this.centerX, -this.centerY);
+
+                                // Now draw the character directly above the center point of the wheel at the appropriate radius.
+                                if (strokeStyle)
+                                    this.ctx.strokeText(character, this.centerX , this.centerY - radius + lineOffset);
+
+                                if (fillStyle)
+                                    this.ctx.fillText(character, this.centerX, this.centerY - radius + lineOffset);
+
+                                // Increment the drawAngle by the angle per character so next loop we rotate
+                                // to the next angle required to draw the character at.
+                                drawAngle += anglePerChar;
+
+                                this.ctx.restore();
+                            }
+                        }
                     }
+
+                    // Increment this ready for the next time.
+                    lineOffset += fontSize;
                 }
             }
 
