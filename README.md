@@ -36,7 +36,7 @@ var myWheel = new Winwheel({
 ```
 
 ## More examples
-See the /examples folder for examples of some of the types of things you can create with Winwheel.js
+See the /examples folder for examples of some of the types of things you can create with Winwheel.js, to see these examples in action please visit the examples section on my website http://dougtesting.net/winwheel/examples
 
 ## Tutorials and other documentation
 Please visit http://dougtesting.net/winwheel/docs to see a complete set of tutorials on how to use Winwheel.js as well as other documentation such as class references.
@@ -45,6 +45,3 @@ Please visit http://dougtesting.net/winwheel/docs to see a complete set of tutor
 Douglas McKechie https://github.com/zarocknz
 
 Keep informed about Winwheel.js by following https://twitter.com/dougtesting
-
-## TODO
-More examples
