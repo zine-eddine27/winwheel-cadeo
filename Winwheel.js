@@ -2232,19 +2232,36 @@ function winwheelAnimationLoop()
             winwheelToDrawDuringAnimation.ctx.clearRect(0, 0, winwheelToDrawDuringAnimation.canvas.width, winwheelToDrawDuringAnimation.canvas.height);
         }
 
+        var callbackBefore = winwheelToDrawDuringAnimation.animation.callbackBefore;
+        var callbackAfter = winwheelToDrawDuringAnimation.animation.callbackAfter;
+
         // If there is a callback function which is supposed to be called before the wheel is drawn then do that.
-        if (winwheelToDrawDuringAnimation.animation.callbackBefore != null)
+        if (callbackBefore != null)
         {
-            eval(winwheelToDrawDuringAnimation.animation.callbackBefore);
+            if (typeof callbackBefore === 'function')
+            {
+                callbackBefore();
+            }
+            else
+            {
+                eval(callbackBefore);
+            }
         }
 
         // Call code to draw the wheel, pass in false as we never want it to clear the canvas as that would wipe anything drawn in the callbackBefore.
         winwheelToDrawDuringAnimation.draw(false);
 
         // If there is a callback function which is supposed to be called after the wheel has been drawn then do that.
-        if (winwheelToDrawDuringAnimation.animation.callbackAfter != null)
+        if (callbackAfter != null)
         {
-            eval(winwheelToDrawDuringAnimation.animation.callbackAfter);
+            if (typeof callbackAfter === 'function')
+            {
+                callbackAfter();
+            }
+            else
+            {
+                eval(callbackAfter);
+            }
         }
     }
 }
@@ -2260,9 +2277,17 @@ function winwheelStopAnimation(canCallback)
     // false can be passed in to stop the after happening if the animation has been stopped before it ended normally.
     if (canCallback != false)
     {
-        if (winwheelToDrawDuringAnimation.animation.callbackFinished != null)
+        var callback = winwheelToDrawDuringAnimation.animation.callbackFinished;
+        if (callback != null)
         {
-            eval(winwheelToDrawDuringAnimation.animation.callbackFinished);
+            if (typeof callback == 'function')
+            {
+                callback(winwheelToDrawDuringAnimation.getIndicatedSegment());
+            }
+            else
+            {
+                eval(callback);
+            }
         }
     }
 }
