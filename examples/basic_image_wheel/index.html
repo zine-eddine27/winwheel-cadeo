@@ -39,38 +39,39 @@
             <p>Choose a power setting then press the Spin button. You will be alerted to the prize won when the spinning stops.</p>
             <br />
             <table cellpadding="0" cellspacing="0" border="0">
-            <tr>
-                <td>
-                    <div class="power_controls">
-                        <br />
-                        <br />
-                        <table class="power" cellpadding="10" cellspacing="0">
-                            <tr>
-                                <th align="center">Power</th>
-                            </tr>
-                            <tr>
-                                <td width="78" align="center" id="pw3" onClick="powerSelected(3);">High</td>
-                            </tr>
-                            <tr>
-                                <td align="center" id="pw2" onClick="powerSelected(2);">Med</td>
-                            </tr>
-                            <tr>
-                                <td align="center" id="pw1" onClick="powerSelected(1);">Low</td>
-                            </tr>
-                        </table>
-                        <br />
-                        <img id="spin_button" src="spin_off.png" alt="Spin" onClick="startSpin();" />
-                        <br /><br />
-                        &nbsp;&nbsp;<a href="#" onClick="resetWheel(); return false;">Play Again</a><br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(reset)
-                    </div>
-                </td>
-                <td width="318" height="418" class="the_wheel" align="center" valign="center">
-                    <canvas id="canvas" width="315" height="418">
-                        <p style="{color: white}" align="center">Sorry, your browser doesn't support canvas. Please try another.</p>
-                    </canvas>
-                </td>
-            </tr>
-        </table>
+                <tr>
+                    <td>
+                        <div class="power_controls">
+                            <br />
+                            <br />
+                            <table class="power" cellpadding="10" cellspacing="0">
+                                <tr>
+                                    <th align="center">Power</th>
+                                </tr>
+                                <tr>
+                                    <td width="78" align="center" id="pw3" onClick="powerSelected(3);">High</td>
+                                </tr>
+                                <tr>
+                                    <td align="center" id="pw2" onClick="powerSelected(2);">Med</td>
+                                </tr>
+                                <tr>
+                                    <td align="center" id="pw1" onClick="powerSelected(1);">Low</td>
+                                </tr>
+                            </table>
+                            <br />
+                            <img id="spin_button" src="spin_off.png" alt="Spin" onClick="startSpin();" />
+                            <br /><br />
+                            &nbsp;&nbsp;<a href="#" onClick="resetWheel(); return false;">Play Again</a><br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(reset)
+                        </div>
+                    </td>
+                    <td width="318" height="418" class="the_wheel" align="center" valign="center">
+                        <canvas id="canvas" width="315" height="418">
+                            <p style="{color: white}" align="center">Sorry, your browser doesn't support canvas. Please try another.</p>
+                        </canvas>
+                    </td>
+                </tr>
+            </table>
+        </div>
         <script>
             // Create new wheel object specifying the parameters at creation time.
             var theWheel = new Winwheel({
@@ -99,7 +100,7 @@
                     'type'     : 'spinToStop',
                     'duration' : 5,     // Duration in seconds.
                     'spins'    : 8,     // Number of complete spins.
-                    'callbackFinished' : 'alertPrize()'
+                    'callbackFinished' : alertPrize
                 }
             });
 
@@ -214,14 +215,12 @@
 
             // -------------------------------------------------------
             // Called when the spin animation has finished by the callback feature of the wheel because I specified callback in the parameters.
+            // note the indicated segment is passed in as a parmeter as 99% of the time you will want to know this to inform the user of their prize.
             // -------------------------------------------------------
-            function alertPrize()
+            function alertPrize(indicatedSegment)
             {
-                // Get the segment indicated by the pointer on the wheel background which is at 0 degrees.
-                var winningSegment = theWheel.getIndicatedSegment();
-
                 // Do basic alert of the segment text. You would probably want to do something more interesting with this information.
-                alert("The wheel stopped on " + winningSegment.text);
+                alert("The wheel stopped on " + indicatedSegment.text);
             }
         </script>
     </body>

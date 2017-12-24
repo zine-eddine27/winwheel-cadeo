@@ -1,7 +1,7 @@
 <!--
     Winhweel.js basic code wheel example by Douglas McKechie @ www.dougtesting.net
     See website for tutorials and other documentation.
-    
+
     The MIT License (MIT)
 
     Copyright (c) 2016 Douglas McKechie
@@ -39,38 +39,39 @@
             <p>Choose a power setting then press the Spin button. You will be alerted to the prize won when the spinning stops.</p>
             <br />
             <table cellpadding="0" cellspacing="0" border="0">
-            <tr>
-                <td>
-                    <div class="power_controls">
-                        <br />
-                        <br />
-                        <table class="power" cellpadding="10" cellspacing="0">
-                            <tr>
-                                <th align="center">Power</th>
-                            </tr>
-                            <tr>
-                                <td width="78" align="center" id="pw3" onClick="powerSelected(3);">High</td>
-                            </tr>
-                            <tr>
-                                <td align="center" id="pw2" onClick="powerSelected(2);">Med</td>
-                            </tr>
-                            <tr>
-                                <td align="center" id="pw1" onClick="powerSelected(1);">Low</td>
-                            </tr>
-                        </table>
-                        <br />
-                        <img id="spin_button" src="spin_off.png" alt="Spin" onClick="startSpin();" />
-                        <br /><br />
-                        &nbsp;&nbsp;<a href="#" onClick="resetWheel(); return false;">Play Again</a><br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(reset)
-                    </div>
-                </td>
-                <td width="438" height="582" class="the_wheel" align="center" valign="center">
-                    <canvas id="canvas" width="434" height="434">
-                        <p style="{color: white}" align="center">Sorry, your browser doesn't support canvas. Please try another.</p>
-                    </canvas>
-                </td>
-            </tr>
-        </table>
+                <tr>
+                    <td>
+                        <div class="power_controls">
+                            <br />
+                            <br />
+                            <table class="power" cellpadding="10" cellspacing="0">
+                                <tr>
+                                    <th align="center">Power</th>
+                                </tr>
+                                <tr>
+                                    <td width="78" align="center" id="pw3" onClick="powerSelected(3);">High</td>
+                                </tr>
+                                <tr>
+                                    <td align="center" id="pw2" onClick="powerSelected(2);">Med</td>
+                                </tr>
+                                <tr>
+                                    <td align="center" id="pw1" onClick="powerSelected(1);">Low</td>
+                                </tr>
+                            </table>
+                            <br />
+                            <img id="spin_button" src="spin_off.png" alt="Spin" onClick="startSpin();" />
+                            <br /><br />
+                            &nbsp;&nbsp;<a href="#" onClick="resetWheel(); return false;">Play Again</a><br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(reset)
+                        </div>
+                    </td>
+                    <td width="438" height="582" class="the_wheel" align="center" valign="center">
+                        <canvas id="canvas" width="434" height="434">
+                            <p style="{color: white}" align="center">Sorry, your browser doesn't support canvas. Please try another.</p>
+                        </canvas>
+                    </td>
+                </tr>
+            </table>
+        </div>
         <script>
             // Create new wheel object specifying the parameters at creation time.
             var theWheel = new Winwheel({
@@ -96,11 +97,11 @@
                     'callbackFinished' : alertPrize
                 }
             });
-            
+
             // Vars used by the code in this page to do power controls.
             var wheelPower    = 0;
             var wheelSpinning = false;
-            
+
             // -------------------------------------------------------
             // Function to handle the onClick on the power buttons.
             // -------------------------------------------------------
@@ -113,32 +114,32 @@
                     document.getElementById('pw1').className = "";
                     document.getElementById('pw2').className = "";
                     document.getElementById('pw3').className = "";
-                    
+
                     // Now light up all cells below-and-including the one selected by changing the class.
                     if (powerLevel >= 1)
                     {
                         document.getElementById('pw1').className = "pw1";
                     }
-                        
+
                     if (powerLevel >= 2)
                     {
                         document.getElementById('pw2').className = "pw2";
                     }
-                        
+
                     if (powerLevel >= 3)
                     {
                         document.getElementById('pw3').className = "pw3";
                     }
-                    
+
                     // Set wheelPower var used when spin button is clicked.
                     wheelPower = powerLevel;
-                    
+
                     // Light up the spin button by changing it's source image and adding a clickable class to it.
                     document.getElementById('spin_button').src = "spin_on.png";
                     document.getElementById('spin_button').className = "clickable";
                 }
             }
-            
+
             // -------------------------------------------------------
             // Click handler for spin button.
             // -------------------------------------------------------
@@ -161,20 +162,20 @@
                     {
                         theWheel.animation.spins = 15;
                     }
-                    
+
                     // Disable the spin button so can't click again while wheel is spinning.
                     document.getElementById('spin_button').src       = "spin_off.png";
                     document.getElementById('spin_button').className = "";
-                    
+
                     // Begin the spin animation by calling startAnimation on the wheel object.
                     theWheel.startAnimation();
-                    
+
                     // Set to true so that power can't be changed and spin button re-enabled during
                     // the current animation. The user will have to reset before spinning again.
                     wheelSpinning = true;
                 }
             }
-            
+
             // -------------------------------------------------------
             // Function for reset button.
             // -------------------------------------------------------
@@ -183,16 +184,17 @@
                 theWheel.stopAnimation(false);  // Stop the animation, false as param so does not call callback function.
                 theWheel.rotationAngle = 0;     // Re-set the wheel angle to 0 degrees.
                 theWheel.draw();                // Call draw to render changes to the wheel.
-                
+
                 document.getElementById('pw1').className = "";  // Remove all colours from the power level indicators.
                 document.getElementById('pw2').className = "";
                 document.getElementById('pw3').className = "";
-                
+
                 wheelSpinning = false;          // Reset to false to power buttons and spin can be clicked again.
             }
-            
+
             // -------------------------------------------------------
-            // Called when the spin animation has finished by the callback feature of the wheel because I specified callback in the parameters.
+            // Called when the spin animation has finished by the callback feature of the wheel because I specified callback in the parameters
+            // note the indicated segment is passed in as a parmeter as 99% of the time you will want to know this to inform the user of their prize.
             // -------------------------------------------------------
             function alertPrize(indicatedSegment)
             {
