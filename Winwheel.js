@@ -2239,6 +2239,7 @@ function winwheelAnimationLoop()
         // If there is a callback function which is supposed to be called before the wheel is drawn then do that.
         if (callbackBefore != null)
         {
+            // If the property is a function then call it, otherwise eval the proptery as javascript code.
             if (typeof callbackBefore === 'function')
             {
                 callbackBefore();
@@ -2255,6 +2256,7 @@ function winwheelAnimationLoop()
         // If there is a callback function which is supposed to be called after the wheel has been drawn then do that.
         if (callbackAfter != null)
         {
+            // If the property is a function then call it, otherwise eval the proptery as javascript code.
             if (typeof callbackAfter === 'function')
             {
                 callbackAfter();
@@ -2279,10 +2281,13 @@ function winwheelStopAnimation(canCallback)
     if (canCallback != false)
     {
         var callback = winwheelToDrawDuringAnimation.animation.callbackFinished;
+
         if (callback != null)
         {
-            if (typeof callback == 'function')
+            // If the callback is a function then call it, otherwise evaluate the property as javascript code.
+            if (typeof callback === 'function')
             {
+                // Pass back the indicated segment as 99% of the time you will want to know this to inform the user of their prize.
                 callback(winwheelToDrawDuringAnimation.getIndicatedSegment());
             }
             else
