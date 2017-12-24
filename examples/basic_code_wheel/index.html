@@ -93,7 +93,7 @@
                     'type'     : 'spinToStop',
                     'duration' : 5,     // Duration in seconds.
                     'spins'    : 8,     // Number of complete spins.
-                    'callbackFinished' : 'alertPrize()'
+                    'callbackFinished' : alertPrize
                 }
             });
             
@@ -194,13 +194,10 @@
             // -------------------------------------------------------
             // Called when the spin animation has finished by the callback feature of the wheel because I specified callback in the parameters.
             // -------------------------------------------------------
-            function alertPrize()
+            function alertPrize(indicatedSegment)
             {
-                // Get the segment indicated by the pointer on the wheel background which is at 0 degrees.
-                var winningSegment = theWheel.getIndicatedSegment();
-                
                 // Do basic alert of the segment text. You would probably want to do something more interesting with this information.
-                alert("You have won " + winningSegment.text);
+                alert("You have won " + indicatedSegment.text);
             }
         </script>
     </body>
