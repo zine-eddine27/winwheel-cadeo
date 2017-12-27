@@ -430,6 +430,9 @@ Winwheel.prototype.drawPins = function()
     if ((this.pins) && (this.pins.number))
     {
         // Work out the angle to draw each pin a which is simply 360 / the number of pins as they space evenly around.
+        //++ There is a slight oddity with the pins in that there is a pin at 0 and also one at 360 and these will be drawn
+        //++ directly over the top of each other. Also pins are 0 indexed which could possibly cause some confusion
+        //++ with the getCurrentPin function - for now this is just used for audio so probably not a problem.
         var pinSpacing = (360 / this.pins.number);
 
         for(i=1; i<=this.pins.number; i ++)
@@ -1703,6 +1706,57 @@ Winwheel.prototype.getIndicatedSegmentNumber = function()
     return indicatedPrize;
 }
 
+// ====================================================================================================================
+// Works out what Pin around the wheel is considered the current one which is the one which just passed the pointer.
+// Used to work out if the pin has changed during the animation to tigger a sound.
+// ====================================================================================================================
+Winwheel.prototype.getCurrentPinNumber = function()
+{
+    var currentPin = 0;
+
+    if (this.pins)
+    {
+        var rawAngle = this.getRotationPosition();
+
+        // Now we have the angle of the wheel, but we need to take in to account where the pointer is because
+        // will not always be at the 12 o'clock 0 degrees location.
+        var relativeAngle = Math.floor(this.pointerAngle - rawAngle);
+
+        if (relativeAngle < 0)
+        {
+            relativeAngle = 360 - Math.abs(relativeAngle);
+        }
+
+        // Work out the angle of the pins as this is simply 360 / the number of pins as they space evenly around.
+        var pinSpacing = (360 / this.pins.number);
+        var totalPinAngle = 0;
+
+        // Now we can work out the pin by seeing what pins relativeAngle is between.
+        for (x = 0; x < (this.pins.number); x ++)
+        {
+            if ((relativeAngle >= totalPinAngle) && (relativeAngle <= (totalPinAngle + pinSpacing)))
+            {
+                currentPin = x;
+                break;
+            }
+
+            totalPinAngle += pinSpacing;
+        }
+
+        // Now if rotating clockwise we must add 1 to the current pin as we want the pin which has just passed
+        // the pointer to be returned as the current pin, not the start of the one we are between.
+        if (this.animation.direction == 'clockwise') {
+            currentPin ++;
+
+            if (currentPin > this.pins.number) {
+                currentPin = 0;
+            }
+        }
+    }
+
+    return currentPin;
+}
+
 // ==================================================================================================================================================
 // Returns the rotation angle of the wheel corrected to 0-360 (i.e. removes all the multiples of 360).
 // ==================================================================================================================================================
@@ -2057,20 +2111,22 @@ function Animation(options)
 {
     // Most of these options are null because the defaults are different depending on the type of animation.
     defaultOptions = {
-        'type'              : 'spinOngoing',       // For now there are only supported types are spinOngoing (continuous), spinToStop, spinAndBack, custom.
-        'direction'         : 'clockwise',         // clockwise or anti-clockwise.
-        'propertyName'      : null,                // The name of the winning wheel property to be affected by the animation.
-        'propertyValue'     : null,                // The value the property is to be set to at the end of the animation.
-        'duration'          : 10,                  // Duration of the animation.
-        'yoyo'              : false,               // If the animation is to reverse back again i.e. yo-yo.
-        'repeat'            : null,                // The number of times the animation is to repeat, -1 will cause it to repeat forever.
-        'easing'            : null,                // The easing to use for the animation, default is the best for spin to stop. Use Linear.easeNone for no easing.
-        'stopAngle'         : null,                // Used for spinning, the angle at which the wheel is to stop.
-        'spins'             : null,                // Used for spinning, the number of complete 360 degree rotations the wheel is to do.
-        'clearTheCanvas'    : null,                // If set to true the canvas will be cleared before the wheel is re-drawn, false it will not, null the animation will abide by the value of this property for the parent wheel object.
-        'callbackFinished'  : null,                // Function to callback when the animation has finished.
-        'callbackBefore'    : null,                // Function to callback before the wheel is drawn each animation loop.
-        'callbackAfter'     : null                 // Function to callback after the wheel is drawn each animation loop.
+        'type'              : 'spinOngoing',   // For now there are only supported types are spinOngoing (continuous), spinToStop, spinAndBack, custom.
+        'direction'         : 'clockwise',     // clockwise or anti-clockwise.
+        'propertyName'      : null,            // The name of the winning wheel property to be affected by the animation.
+        'propertyValue'     : null,            // The value the property is to be set to at the end of the animation.
+        'duration'          : 10,              // Duration of the animation.
+        'yoyo'              : false,           // If the animation is to reverse back again i.e. yo-yo.
+        'repeat'            : null,            // The number of times the animation is to repeat, -1 will cause it to repeat forever.
+        'easing'            : null,            // The easing to use for the animation, default is the best for spin to stop. Use Linear.easeNone for no easing.
+        'stopAngle'         : null,            // Used for spinning, the angle at which the wheel is to stop.
+        'spins'             : null,            // Used for spinning, the number of complete 360 degree rotations the wheel is to do.
+        'clearTheCanvas'    : null,            // If set to true the canvas will be cleared before the wheel is re-drawn, false it will not, null the animation will abide by the value of this property for the parent wheel object.
+        'callbackFinished'  : null,            // Function to callback when the animation has finished.
+        'callbackBefore'    : null,            // Function to callback before the wheel is drawn each animation loop.
+        'callbackAfter'     : null,            // Function to callback after the wheel is drawn each animation loop.
+        'callbackSound'     : null,            // Function to callback if a sound should be triggered on change of segment or pin.
+        'soundTriggerType'  : 'segment'        // Sound trigger type. Default is segment which triggers when segment changes, can be pin if to trigger when pin passes the pointer.
     };
 
     // Now loop through the default options and create properties of this class set to the value for
@@ -2266,6 +2322,59 @@ function winwheelAnimationLoop()
                 eval(callbackAfter);
             }
         }
+
+        // If there is a sound callback then call a function which figures out if the sound should be triggered
+        // and if so then call the function specified by the developer.
+        if (winwheelToDrawDuringAnimation.animation.callbackSound)
+        {
+            winwheelTriggerSound();
+        }
+    }
+}
+
+// ====================================================================================================================
+// This function figures out if the callbackSound function needs to be called by working out if the segment or pin
+// has changed since the last animation loop.
+// ====================================================================================================================
+function winwheelTriggerSound()
+{
+    // If this property does not exist then add it as a property of the winwheel.
+    if (winwheelToDrawDuringAnimation.hasOwnProperty('_lastSoundTriggerNumber') == false)
+    {
+        winwheelToDrawDuringAnimation._lastSoundTriggerNumber = 0;
+    }
+
+    var callbackSound = winwheelToDrawDuringAnimation.animation.callbackSound;
+    var currentTriggerNumber = 0;
+
+    // Now figure out if the sound callback should be called depending on the sound trigger type.
+    if (winwheelToDrawDuringAnimation.animation.soundTriggerType == 'pin')
+    {
+        // So for the pin type we need to work out which pin we are between.
+        currentTriggerNumber = winwheelToDrawDuringAnimation.getCurrentPinNumber();
+    }
+    else
+    {
+        // Check on the change of segment by working out which segment we are in.
+        // We can utilise the existing getIndiatedSegmentNumber function.
+        currentTriggerNumber = winwheelToDrawDuringAnimation.getIndicatedSegmentNumber();
+    }
+
+    // If the current number is not the same as last time then call the sound callback.
+    if (currentTriggerNumber != winwheelToDrawDuringAnimation._lastSoundTriggerNumber)
+    {
+        // If the property is a function then call it, otherwise eval the proptery as javascript code.
+        if (typeof callbackSound === 'function')
+        {
+            callbackSound();
+        }
+        else
+        {
+            eval(callbackSound);
+        }
+
+        // Also update the last sound trigger with the current number.
+        winwheelToDrawDuringAnimation._lastSoundTriggerNumber = currentTriggerNumber;
     }
 }
 
