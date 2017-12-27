@@ -2126,7 +2126,7 @@ function Animation(options)
         'callbackBefore'    : null,            // Function to callback before the wheel is drawn each animation loop.
         'callbackAfter'     : null,            // Function to callback after the wheel is drawn each animation loop.
         'callbackSound'     : null,            // Function to callback if a sound should be triggered on change of segment or pin.
-        'soundTriggerType'  : 'segment'        // Sound trigger type. Default is segment which triggers when segment changes, can be pin if to trigger when pin passes the pointer.
+        'soundTrigger'  : 'segment'        // Sound trigger type. Default is segment which triggers when segment changes, can be pin if to trigger when pin passes the pointer.
     };
 
     // Now loop through the default options and create properties of this class set to the value for
@@ -2348,7 +2348,7 @@ function winwheelTriggerSound()
     var currentTriggerNumber = 0;
 
     // Now figure out if the sound callback should be called depending on the sound trigger type.
-    if (winwheelToDrawDuringAnimation.animation.soundTriggerType == 'pin')
+    if (winwheelToDrawDuringAnimation.animation.soundTrigger == 'pin')
     {
         // So for the pin type we need to work out which pin we are between.
         currentTriggerNumber = winwheelToDrawDuringAnimation.getCurrentPinNumber();
