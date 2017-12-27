@@ -2126,7 +2126,7 @@ function Animation(options)
         'callbackBefore'    : null,            // Function to callback before the wheel is drawn each animation loop.
         'callbackAfter'     : null,            // Function to callback after the wheel is drawn each animation loop.
         'callbackSound'     : null,            // Function to callback if a sound should be triggered on change of segment or pin.
-        'soundTrigger'  : 'segment'        // Sound trigger type. Default is segment which triggers when segment changes, can be pin if to trigger when pin passes the pointer.
+        'soundTrigger'      : 'segment'        // Sound trigger type. Default is segment which triggers when segment changes, can be pin if to trigger when pin passes the pointer.
     };
 
     // Now loop through the default options and create properties of this class set to the value for
