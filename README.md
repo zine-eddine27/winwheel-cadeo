@@ -11,6 +11,7 @@ Winwheel.js Features Include:
 * Draw wheels using code generated segments or graphically rich images.
 * Numerous text orientation, direction, size and colour options.
 * Random or Pre-calculated prize stopping location.
+* Play sounds while the wheel is spinning including a "tick" sound.
 * Ability to get the segment the user clicked upon.
 * Fully commented source code. Plenty of tutorials and other documentation.
 * Winwheel.js is free to use with an open source licence.
