@@ -60,6 +60,7 @@
             let margin = 30;
             let theCanvas = document.getElementById('canvas');
 
+            /*
             // -----------------------------------------------------------------
             // This function is called by the onLoad and onResize events of the window
             // and takes care of adjusting the canvas size and winwheel properties.
@@ -130,6 +131,7 @@
                 // Last thing is always to re-draw the wheel on the canvas.
                 //theWheel.draw();
             }
+            */
 
             // -----------------------------------------------------------------
             // This function re-sizes segmentImage wheels.
@@ -298,17 +300,18 @@
                 'numSegments'  : 8,     // Specify number of segments.
                 'outerRadius'  : 212,   // Set outer radius so wheel fits inside the background.
                 'textFontSize' : 28,    // Set font size as desired.
+                'drawMode'     : 'segmentImage',
                 'responsive'   : true,  // This wheel is responsive.
                 'segments'     :        // Define segments including colour and text.
                 [
-                   {'fillStyle' : '#eae56f', 'text' : 'Prize 1'},
-                   {'fillStyle' : '#89f26e', 'text' : 'Prize 2'},
-                   {'fillStyle' : '#7de6ef', 'text' : 'Prize 3'},
-                   {'fillStyle' : '#e7706f', 'text' : 'Prize 4'},
-                   {'fillStyle' : '#eae56f', 'text' : 'Prize 5'},
-                   {'fillStyle' : '#89f26e', 'text' : 'Prize 6'},
-                   {'fillStyle' : '#7de6ef', 'text' : 'Prize 7'},
-                   {'fillStyle' : '#e7706f', 'text' : 'Prize 8'}
+                   {'fillStyle' : '#eae56f', 'text' : 'Prize 1', 'image': 'jane.png'},
+                   {'fillStyle' : '#89f26e', 'text' : 'Prize 2', 'image': 'mary.png'},
+                   {'fillStyle' : '#7de6ef', 'text' : 'Prize 3', 'image': 'tom.png'},
+                   {'fillStyle' : '#e7706f', 'text' : 'Prize 4', 'image': 'jane.png'},
+                   {'fillStyle' : '#eae56f', 'text' : 'Prize 5', 'image': 'mary.png'},
+                   {'fillStyle' : '#89f26e', 'text' : 'Prize 6', 'image': 'tom.png'},
+                   {'fillStyle' : '#eae56f', 'text' : 'Prize 7', 'image': 'mary.png'},
+                   {'fillStyle' : '#89f26e', 'text' : 'Prize 8', 'image': 'tom.png'}
                 ],
                 'animation' :           // Specify the animation to use.
                 {

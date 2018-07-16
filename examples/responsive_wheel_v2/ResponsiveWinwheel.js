@@ -562,6 +562,12 @@ Winwheel.prototype.drawSegmentImages = function()
     // Again check have context in case this function was called directly and not via draw function.
     if (this.ctx)
     {
+        //++ New: Scale the centerX and centerY, also the innerRadius and outerRadius
+        // All formulas changed to use just centerX or Y not this.centerX or Y
+        let centerX = (this.centerX * this.scaleFactor);
+        let centerY = (this.centerY * this.scaleFactor);
+        //++
+
         // Draw the segments if there is at least one in the segments array.
         if (this.segments)
         {
@@ -586,18 +592,24 @@ Winwheel.prototype.drawSegmentImages = function()
                     var imageAngle = 0;
                     var imageDirection = '';
 
-                    if (seg.imageDirection !== null)
+                    //++ New: used below instead of the imageData.width and height.
+                    let scaledWidth = (seg.imgData.width * this.scaleFactor);
+                    let scaledHeight = (seg.imgData.height * this.scaleFactor);
+                    //-----------------------
+
+                    if (seg.imageDirection !== null) {
                         imageDirection = seg.imageDirection;
-                    else
+                    } else {
                         imageDirection = this.imageDirection;
+                    }
 
                     if (imageDirection == 'S')
                     {
                         // Left set so image sits half/half over the 180 degrees point.
-                        imageLeft = (centerX - (seg.imgData.width / 2));
+                        imageLeft = (centerX - (scaledWidth / 2));
 
                         // Top so image starts at the centerY.
-                        imageTop  = centerY;
+                        imageTop = centerY;
 
                         // Angle to draw the image is its starting angle + half its size.
                         // Here we add 180 to the angle to the segment is poistioned correctly.
@@ -609,7 +621,7 @@ Winwheel.prototype.drawSegmentImages = function()
                         imageLeft = centerX;
 
                         // Top is so that it sits half/half over the 90 degree point.
-                        imageTop  = (centerY - (seg.imgData.height / 2));
+                        imageTop  = (centerY - (scaledHeight / 2));
 
                         // Again get the angle in the center of the segment and add it to the rotation angle.
                         // this time we need to add 270 to that to the segment is rendered the correct place.
@@ -618,10 +630,10 @@ Winwheel.prototype.drawSegmentImages = function()
                     else if (imageDirection == 'W')
                     {
                         // Left is the centerX minus the width of the image.
-                        imageLeft = (centerX - seg.imgData.width);
+                        imageLeft = (centerX - scaledWidth);
 
                         // Top is so that it sits half/half over the 270 degree point.
-                        imageTop  = (centerY - (seg.imgData.height / 2));
+                        imageTop = (centerY - (scaledHeight / 2));
 
                         // Again get the angle in the center of the segment and add it to the rotation angle.
                         // this time we need to add 90 to that to the segment is rendered the correct place.
@@ -630,10 +642,10 @@ Winwheel.prototype.drawSegmentImages = function()
                     else // North is the default.
                     {
                         // Left set so image sits half/half over the 0 degrees point.
-                        imageLeft = (centerX - (seg.imgData.width / 2));
+                        imageLeft = (centerX - (scaledWidth / 2));
 
                         // Top so image is its height out (above) the center point.
-                        imageTop  = (centerY - seg.imgData.height);
+                        imageTop  = (centerY - scaledHeight);
 
                         // Angle to draw the image is its starting angle + half its size.
                         // this sits it half/half over the center angle of the segment.
@@ -650,7 +662,8 @@ Winwheel.prototype.drawSegmentImages = function()
                     this.ctx.translate(-centerX, -centerY);
 
                     // Draw the image.
-                    this.ctx.drawImage(seg.imgData, imageLeft, imageTop);
+                    //++ Scaled width and height added as last 2 parameters.
+                    this.ctx.drawImage(seg.imgData, imageLeft, imageTop, scaledWidth, scaledHeight);
 
                     this.ctx.restore();
                 }
