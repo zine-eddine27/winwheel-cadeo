@@ -60,36 +60,7 @@
             let margin = 30;
             let theCanvas = document.getElementById('canvas');
 
-            /*
-            // -----------------------------------------------------------------
-            // This function is called by the onLoad and onResize events of the window
-            // and takes care of adjusting the canvas size and winwheel properties.
-            function resizeCanvas_Code() {
-                // Get the width of the window excluding any toolbars etc.
-                let width = window.innerWidth;
-
-                if (width < minWidth) {
-                    width = minWidth;
-                } else if (width > maxWidth) {
-                    width = maxWidth;
-                }
-
-                // Call function to re-size the things we want no matter the drawMode.
-                resizeCanvas_Common(width);
-
-                // Redraw the wheel so any changes appear.
-                theWheel.draw();
-
-                //++ Think we need to provide some built in responsiveness for the 95% of people who will not be altering
-                //++ the wheel after it is created other than animating it (they can change non size properties). TO make it
-                //++ easier then advanced devs will have to code their own function to do this.
-
-                //++ Also need to consider what is segments have their own fontSize as if set on the segment thn global values
-                //++ for the font and margin are not used. Perhaps make it so the auto function will only work for global values.
-
-                //++ OK so now for single image, what is the best way to sort that?
-            }
-
+            /* @TODO still to impliment image scaling
             // -----------------------------------------------------------------
             // This function re-sizes a wheel made out of a single image.
             function resizeCanvas_Image()
@@ -134,134 +105,9 @@
             */
 
             // -----------------------------------------------------------------
-            // This function re-sizes segmentImage wheels.
-            function resizeCanvas_SegmentImage()
-            {
-                // Get the width of the window excluding any toolbars etc.
-                let width = window.innerWidth;
-
-                if (width < minWidth) {
-                    width = minWidth;
-                } else if (width > maxWidth) {
-                    width = maxWidth;
-                }
-
-                // Ok so the same thing no matter the drawMode is re-sizing the canvas.
-                resizeCanvas_Common(width);
-
-                // Work out the percent the current width is of the normal max width.
-                let percent = (width / maxWidth);
-
-                // Think where each segment is drawn the image needs to scaled at draw time like with single image.
-                //++ Again small changes inside the Winwheel.js would be best to support this, but for now a copy of the draw function
-                //++ is included here to figure this out.
-
-                // Loop though and output all segments - position 0 of the array is not used, so start loop from index 1
-                // this is to avoid confusion when talking about the first segment.
-                for (x = 1; x <= theWheel.numSegments; x ++)
-                {
-                    // Get the segment object as we need it to read options from.
-                    seg = theWheel.segments[x];
-
-                    // Check image has loaded so a property such as height has a value.
-                    if (seg.imgData.height)
-                    {
-                        // Work out the correct X and Y to draw the image at which depends on the direction of the image.
-                        // Images can be created in 4 directions. North, South, East, West.
-                        // North: Outside at top, inside at bottom. Sits evenly over the 0 degrees angle.
-                        // South: Outside at bottom, inside at top. Sits evenly over the 180 degrees angle.
-                        // East: Outside at right, inside at left. Sits evenly over the 90 degrees angle.
-                        // West: Outside at left, inside at right. Sits evenly over the 270 degrees angle.
-                        var imageLeft = 0;
-                        var imageTop = 0;
-                        var imageAngle = 0;
-                        var imageDirection = '';
-
-                        //++ Adjust here and use adjusted values below? Yes that is what is required.
-                        //++ So it means the image scaling for both segment image and image needs to built in to the wheel
-                        //++ and somehow the percent, the divisor needs to passed in to the wheel.
-                        //++ Think need event handler function that calls scaleWheel and passes in the width.
-                        let widthPercent = (seg.imgData.width * percent);
-                        let heightPercent = (seg.imgData.height * percent);
-
-                        if (seg.imageDirection !== null)
-                            imageDirection = seg.imageDirection;
-                        else
-                            imageDirection = this.imageDirection;
-
-                        if (imageDirection == 'S')
-                        {
-                            // Left set so image sits half/half over the 180 degrees point.
-                            imageLeft = (theWheel.centerX - (widthPercent / 2));
-
-                            // Top so image starts at the centerY.
-                            imageTop = theWheel.centerY;
-
-                            // Angle to draw the image is its starting angle + half its size.
-                            // Here we add 180 to the angle to the segment is poistioned correctly.
-                            imageAngle = (seg.startAngle + 180 + ((seg.endAngle - seg.startAngle) / 2));
-                        }
-                        else if (imageDirection == 'E')
-                        {
-                            // Left set so image starts and the center point.
-                            imageLeft = theWheel.centerX;
-
-                            // Top is so that it sits half/half over the 90 degree point.
-                            imageTop  = (theWheel.centerY - (heightPercent / 2));
-
-                            // Again get the angle in the center of the segment and add it to the rotation angle.
-                            // this time we need to add 270 to that to the segment is rendered the correct place.
-                            imageAngle = (seg.startAngle + 270 + ((seg.endAngle - seg.startAngle) / 2));
-                        }
-                        else if (imageDirection == 'W')
-                        {
-                            // Left is the centerX minus the width of the image.
-                            imageLeft = (theWheel.centerX - widthPercent);
-
-                            // Top is so that it sits half/half over the 270 degree point.
-                            imageTop  = (theWheel.centerY - (heightPercent / 2));
-
-                            // Again get the angle in the center of the segment and add it to the rotation angle.
-                            // this time we need to add 90 to that to the segment is rendered the correct place.
-                            imageAngle = (seg.startAngle + 90 + ((seg.endAngle - seg.startAngle) / 2));
-                        }
-                        else // North is the default.
-                        {
-                            // Left set so image sits half/half over the 0 degrees point.
-                            imageLeft = (theWheel.centerX - (widthPercent / 2));
-
-                            // Top so image is its height out (above) the center point.
-                            imageTop  = (theWheel.centerY - heightPercent);
-
-                            // Angle to draw the image is its starting angle + half its size.
-                            // this sits it half/half over the center angle of the segment.
-                            imageAngle = (seg.startAngle + ((seg.endAngle - seg.startAngle) / 2));
-                        }
-
-                        // --------------------------------------------------
-                        // Rotate to the position of the segment and then draw the image.
-                        theWheel.ctx.save();
-                        theWheel.ctx.translate(theWheel.centerX, theWheel.centerY);
-
-                        // So math here is the rotation angle of the wheel plus half way between the start and end angle of the segment.
-                        theWheel.ctx.rotate(theWheel.degToRad(theWheel.rotationAngle + imageAngle));
-                        theWheel.ctx.translate(-theWheel.centerX, -theWheel.centerY);
-
-                        // Draw the image.
-                        theWheel.ctx.drawImage(seg.imgData, imageLeft, imageTop, widthPercent, heightPercent);
-
-                        theWheel.ctx.restore();
-                    }
-                    else
-                    {
-                        console.log('Segment ' + x + ' imgData is not loaded');
-                    }
-                }
-            }
-
-            // -----------------------------------------------------------------
             // Resizes the common things no matter the drawMode. This actually takes care of all things for the code
             // drawn wheels, only image and segmentImage wheels need extra things done.
+            // @TODO note this has been added to ResponsiveWinwheel.js winwheelResize() function, it is not needed here.
             function resizeCanvas_Common(width)
             {
                 // Firstly adjust the canvas size. I added a silver background to it
