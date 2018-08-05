@@ -1,4 +1,5 @@
 /*
+    //++ @TODO this file will be deleted, all changed are now in ../../Winwheel.js
     Winwheel.js, by Douglas McKechie @ www.dougtesting.net
     See website for tutorials and other documentation.
 
@@ -60,8 +61,6 @@ function Winwheel(options, drawWheel)
         'wheelImage'           : null,         // Must be set to image data in order to use image to draw the wheel - drawMode must also be 'image'.
         'imageDirection'       : 'N',          // Used when drawMode is segmentImage. Default is north, can also be (E)ast, (S)outh, (W)est.
         'responsive'           : false,        // If set to true the winwheel will bind in to the onResize and onLoad events of the document.
-        'respondLineWidth'     : false,        // Set to true if you do want line widths to scale when responisve is on (usually not).
-        'respondTextLineWidth' : false,        // Set to true if you want text line widths to scale when responsive is on (usually not).
         'scaleFactor'          : 1             // Can be set to less than 1 when responisve mode is on. Can also be set manually to scale wheels up and down.
     };
 
@@ -264,7 +263,7 @@ function Winwheel(options, drawWheel)
 
         //++ When add multiwheel in will need to pass the ID of the wheel so the scaleFactor can be set correctly for this wheel
         //++ as the scale fator might be different for different wheels, especially if they are in another canvas.
-        window.addEventListener("onload", winwheelResize);
+        window.addEventListener("load", winwheelResize);
         window.addEventListener("resize", winwheelResize);
     }
 
@@ -536,10 +535,18 @@ Winwheel.prototype.drawWheelImage = function()
     // to draw() should be done from a wheelImage.onload callback as detailed in example documentation.
     if (this.wheelImage != null)
     {
+        // Break out the centerX and centerY and adjust it using the scale factor.
+        let centerX = (this.centerX * this.scaleFactor);
+        let centerY = (this.centerY * this.scaleFactor);
+
+        // Get the scaled width and height of the image.
+        let scaledWidth = (this.wheelImage.width * this.scaleFactor);
+        let scaledHeight = (this.wheelImage.height * this.scaleFactor);
+
         // Work out the correct X and Y to draw the image at. We need to get the center point of the image
         // aligned over the center point of the wheel, we can't just place it at 0, 0.
-        var imageLeft = (centerX - (this.wheelImage.height / 2));
-        var imageTop  = (centerY - (this.wheelImage.width / 2));
+        let imageLeft = (centerX - (scaledWidth / 2));
+        let imageTop  = (centerY - (scaledHeight / 2));
 
         // Rotate and then draw the wheel.
         // We must rotate by the rotationAngle before drawing to ensure that image wheels will spin.
@@ -548,7 +555,7 @@ Winwheel.prototype.drawWheelImage = function()
         this.ctx.rotate(this.degToRad(this.rotationAngle));
         this.ctx.translate(-centerX, -centerY);
 
-        this.ctx.drawImage(this.wheelImage, imageLeft, imageTop);
+        this.ctx.drawImage(this.wheelImage, imageLeft, imageTop, scaledWidth, scaledHeight);
 
         this.ctx.restore();
     }
@@ -2549,7 +2556,7 @@ function winwheelLoadedImage()
 // ====================================================================================================================
 function winwheelResize()
 {
-    let width = window.innerWidth;
+    let width = document.body.clientWidth;
     let minWidth = winwheelToDrawDuringAnimation._responsiveMinWidth;
     let minHeight = winwheelToDrawDuringAnimation._responsiveMinHeight;
 
