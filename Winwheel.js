@@ -1614,13 +1614,10 @@ Winwheel.prototype.getSegmentAt = function(x, y)
 
 // ====================================================================================================================
 // Returns the number of the segment clicked instead of the segment object.
-//++ @TODO this will likely need some adjustment for responsiveness.
+// This does not work correctly if the canvas width or height is altered by CSS but does work correctly with the scale factor.
 // ====================================================================================================================
 Winwheel.prototype.getSegmentNumberAt = function(x, y)
 {
-    // KNOWN ISSUE: this does not work correct if the canvas is scaled using css, or has padding, border.
-    // @TODO see if can find a solution at some point, check windowToCanvas working as needed, then below.
-
     // Call function above to convert the raw x and y from the user's browser to canvas coordinates
     // i.e. top and left is top and left of canvas, not top and left of the user's browser.
     var loc = this.windowToCanvas(x, y);
@@ -1635,31 +1632,37 @@ Winwheel.prototype.getSegmentNumberAt = function(x, y)
     var oppositeSideLength;
     var hypotenuseSideLength;
 
+    // Get the centerX and centerY scaled with the scale factor, also the same for outer and inner radius.
+    let centerX = (this.centerX * this.scaleFactor);
+    let centerY = (this.centerY * this.scaleFactor);
+    let outerRadius = (this.outerRadius * this.scaleFactor);
+    let innerRadius = (this.innerRadius * this.scaleFactor);
+
     // We will use right triangle maths with the TAN function.
     // The start of the triangle is the wheel center, the adjacent side is along the x axis, and the opposite side is along the y axis.
 
     // We only ever use positive numbers to work out the triangle and the center of the wheel needs to be considered as 0 for the numbers
     // in the maths which is why there is the subtractions below. We also remember what quadrant of the wheel the location is in as we
     // need this information later to add 90, 180, 270 degrees to the angle worked out from the triangle to get the position around a 360 degree wheel.
-    if (loc.x > this.centerX)
+    if (loc.x > centerX)
     {
-        adjacentSideLength = (loc.x - this.centerX);
+        adjacentSideLength = (loc.x - centerX);
         leftRight = 'R';    // Location is in the right half of the wheel.
     }
     else
     {
-        adjacentSideLength = (this.centerX - loc.x);
+        adjacentSideLength = (centerX - loc.x);
         leftRight = 'L';    // Location is in the left half of the wheel.
     }
 
-    if (loc.y > this.centerY)
+    if (loc.y > centerY)
     {
-        oppositeSideLength = (loc.y - this.centerY);
+        oppositeSideLength = (loc.y - centerY);
         topBottom = 'B';    // Bottom half of wheel.
     }
     else
     {
-        oppositeSideLength = (this.centerY - loc.y);
+        oppositeSideLength = (centerY - loc.y);
         topBottom = 'T';    // Top Half of wheel.
     }
 
@@ -1730,7 +1733,7 @@ Winwheel.prototype.getSegmentNumberAt = function(x, y)
 
             // Have to take in to account hollow wheels (doughnuts) so check is greater than innerRadius as
             // well as less than or equal to the outerRadius of the wheel.
-            if ((hypotenuseSideLength >= this.innerRadius) && (hypotenuseSideLength <= this.outerRadius))
+            if ((hypotenuseSideLength >= innerRadius) && (hypotenuseSideLength <= outerRadius))
             {
                 foundSegmentNumber = x;
                 break;
