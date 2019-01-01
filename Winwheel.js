@@ -4,7 +4,7 @@
 
     The MIT License (MIT)
 
-    Copyright (c) 2018 Douglas McKechie
+    Copyright (c) 2012-2019 Douglas McKechie
 
     Permission is hereby granted, free of charge, to any person obtaining a copy
     of this software and associated documentation files (the "Software"), to deal
@@ -26,7 +26,7 @@
 */
 
 // ====================================================================================================================
-// The constructor for the WinWheel object, a JOSN-like array of options can be passed in.
+// The constructor for the WinWheel object, a JSON-like array of options can be passed in.
 // By default the wheel is drawn if canvas object exists on the page, but can pass false as second parameter if don't want this to happen.
 // ====================================================================================================================
 function Winwheel(options, drawWheel)
@@ -61,9 +61,6 @@ function Winwheel(options, drawWheel)
         'imageDirection'    : 'N',          // Used when drawMode is segmentImage. Default is north, can also be (E)ast, (S)outh, (W)est.
         'responsive'        : false,        // If set to true the wheel will resize when the window first loads and also onResize.
         'scaleFactor'       : 1,            // Set by the responsive function. Used in many calculations to scale the wheel.
-        //++ @TODO may want to scale stroke line width for both segments and text somehow. GetSegmentAt still needs scaling adjustment.
-        //++ @TODO check how scaling affects animations, esp custom ones where value to move the center to etc was specified etc, or not a problem?
-        //++ @TODO scrollbar can be a pain at smaller sizes, need to compensate for it or use window.width and height minus this to set the canvas size.
     };
 
     // -----------------------------------------
@@ -125,7 +122,6 @@ function Winwheel(options, drawWheel)
         this.ctx = null;
     }
 
-
     // ------------------------------------------
     // Add array of segments to the wheel, then populate with segments if number of segments is specified for this object.
     this.segments = new Array(null);
@@ -143,7 +139,6 @@ function Winwheel(options, drawWheel)
     // ------------------------------------------
     // Call function to update the segment sizes setting the starting and ending angles.
     this.updateSegmentSizes();
-
 
     // If the text margin is null then set to same as font size as we want some by default.
     if (this.textMargin === null) {
@@ -166,7 +161,7 @@ function Winwheel(options, drawWheel)
     }
 
     // ------------------------------------------
-    // On that note, if the drawMode is image change some defaults provided a value has not been specified.
+    // If the drawMode is image change some defaults provided a value has not been specified.
     if ((this.drawMode == 'image') || (this.drawMode == 'segmentImage')) {
         // Remove grey fillStyle.
         if (typeof(options['fillStyle']) === 'undefined') {
@@ -219,6 +214,7 @@ function Winwheel(options, drawWheel)
         this._responsiveScaleHeight = this.canvas.dataset.responsivescaleheight;
         this._responsiveMinWidth = this.canvas.dataset.responsiveminwidth;
         this._responsiveMinHeight = this.canvas.dataset.responsiveminheight;
+        this._responsiveMargin = this.canvas.dataset.responsivemargin;
 
         // Add event listeners for onload and onresize and call a function defined at the bottom
         // of this script which will handle that and work out the scale factor.
@@ -229,8 +225,7 @@ function Winwheel(options, drawWheel)
     // Finally if drawWheel is true then call function to render the wheel, segment text, overlay etc.
     if (drawWheel == true) {
         this.draw(this.clearTheCanvas);
-    }
-    else if (this.drawMode == 'segmentImage') {
+    } else if (this.drawMode == 'segmentImage') {
         // If segment image then loop though all the segments and load the images for them setting a callback
         // which will call the draw function of the wheel once all the images have been loaded.
         winwheelToDrawDuringAnimation = this;
@@ -665,10 +660,8 @@ Winwheel.prototype.drawSegments = function()
                 this.ctx.strokeStyle = strokeStyle;
 
 
-                // Check there is a strokeStyle or fillStyle, if either the the segment is invisible so should not
-                // try to draw it otherwise a path is began but not ended.
+                // Check there is a strokeStyle or fillStyle, if not the segment is invisible so should not try to draw it otherwise a path is began but not ended.
                 if ((strokeStyle) || (fillStyle)) {
-                    // ----------------------------------
                     // Begin a path as the segment consists of an arc and 2 lines.
                     this.ctx.beginPath();
 
@@ -802,8 +795,7 @@ Winwheel.prototype.drawSegmentText = function()
                     lineOffset = 0;
                 }
 
-                for(let i = 0; i < lines.length; i ++) {
-                    // ---------------------------------
+                for (let i = 0; i < lines.length; i ++) {
                     // If direction is reversed then do things differently than if normal (which is the default - see further down)
                     if (direction == 'reversed') {
                         // When drawing reversed or 'upside down' we need to do some trickery on our part.
@@ -1757,7 +1749,7 @@ Winwheel.prototype.startAnimation = function()
 }
 
 // ==================================================================================================================================================
-// Use same function function which needs to be outside the class for the callback when it stops because is finished.
+// Use same function which needs to be outside the class for the callback when it stops because is finished.
 // ==================================================================================================================================================
 Winwheel.prototype.stopAnimation = function(canCallback)
 {
@@ -2298,7 +2290,18 @@ function winwheelLoadedImage()
 // ====================================================================================================================
 function winwheelResize()
 {
-    let width = window.innerWidth;
+    // By default set the margin to 40px, this can be overridden if needed.
+    // This is to stop the canvas going right to the right edge of the screen and being overlayed by a scrollbar though
+    // if the canvas is center aligned, half the magin will be applied to each side since the margin actually reduces the width of the canvas.
+    let margin = 40;
+
+    // If a value has been specified for this then update the margin to it.
+    if (typeof(winwheelToDrawDuringAnimation._responsiveMargin) !== 'undefined') {
+        margin = winwheelToDrawDuringAnimation._responsiveMargin;
+    }
+
+    // Get the current width and also optional min and max width properties.
+    let width = window.innerWidth - margin;
     let minWidth = winwheelToDrawDuringAnimation._responsiveMinWidth;
     let minHeight = winwheelToDrawDuringAnimation._responsiveMinHeight;
 

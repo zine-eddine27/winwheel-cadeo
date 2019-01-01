@@ -9,16 +9,17 @@ Wheels can be animated using GreenSock's Animation Platform (TweenMax.js) which 
 Winwheel.js Features Include:
 * Easy to use, highly configurable JavaScript classes.
 * Draw wheels using code generated segments or graphically rich images.
+* Responsive features so wheels display correctly on different sized devices.
 * Numerous text orientation, direction, size and colour options.
 * Random or Pre-calculated prize stopping location.
 * Play sounds while the wheel is spinning including a "tick" sound.
 * Ability to get the segment the user clicked upon.
 * Fully commented source code. Plenty of tutorials and other documentation.
-* Winwheel.js is free to use with an open source licence.
+* Winwheel.js is free to use with an open source license.
 
 ## Example
 ```javascript
-var myWheel = new Winwheel({
+var theWheel = new Winwheel({
     'numSegments'    : 4,
     'segments'       :
     [
@@ -45,4 +46,11 @@ Please visit http://dougtesting.net/winwheel/docs to see a complete set of tutor
 ## Maintainer
 Douglas McKechie https://github.com/zarocknz
 
-Keep informed about Winwheel.js by following https://twitter.com/dougtesting
+## Please note
+I am not planning to do any further work on this library as my day job keeps me very busy and after 7 years of Winwheel I would rather spend
+any spare time I do have for personal coding on other projects.
+
+So this means if you would like a version of Winwheel.js for your current JavaScript framework of choice its up to you or others in the community
+to create it. If you create one perhaps open an Issue with the details so others can find and use it. Thanks.
+
+You are welcome to ask questions using the Issues feature of Github, but please don't be offended if I take quite a long time to respond to them. To be honest its probably quicker to ask the Stackoverflow community for help https://stackoverflow.com/search?tab=newest&q=Winwheel
