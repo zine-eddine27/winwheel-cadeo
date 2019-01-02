@@ -78,7 +78,7 @@
         </table>
         <script>
             // Create new wheel object specifying the parameters at creation time.
-            var theWheel = new Winwheel({
+            let theWheel = new Winwheel({
                 'outerRadius'     : 212,        // Set outer radius so wheel fits inside the background.
                 'innerRadius'     : 75,         // Make wheel hollow so segments don't go all way to center.
                 'textFontSize'    : 24,         // Set default font size for the segments.
@@ -130,7 +130,7 @@
             });
 
             // Loads the tick audio sound in to an audio object.
-			var audio = new Audio('tick.mp3');
+			let audio = new Audio('tick.mp3');
 
 			// This function is called when the sound is to be played.
             function playSound()
@@ -144,8 +144,8 @@
             }
 
             // Vars used by the code in this page to do power controls.
-            var wheelPower    = 0;
-            var wheelSpinning = false;
+            let wheelPower    = 0;
+            let wheelSpinning = false;
 
             // -------------------------------------------------------
             // Function to handle the onClick on the power buttons.
@@ -153,26 +153,22 @@
             function powerSelected(powerLevel)
             {
                 // Ensure that power can't be changed while wheel is spinning.
-                if (wheelSpinning == false)
-                {
+                if (wheelSpinning == false) {
                     // Reset all to grey incase this is not the first time the user has selected the power.
                     document.getElementById('pw1').className = "";
                     document.getElementById('pw2').className = "";
                     document.getElementById('pw3').className = "";
 
                     // Now light up all cells below-and-including the one selected by changing the class.
-                    if (powerLevel >= 1)
-                    {
+                    if (powerLevel >= 1) {
                         document.getElementById('pw1').className = "pw1";
                     }
 
-                    if (powerLevel >= 2)
-                    {
+                    if (powerLevel >= 2) {
                         document.getElementById('pw2').className = "pw2";
                     }
 
-                    if (powerLevel >= 3)
-                    {
+                    if (powerLevel >= 3) {
                         document.getElementById('pw3').className = "pw3";
                     }
 
@@ -191,20 +187,14 @@
             function startSpin()
             {
                 // Ensure that spinning can't be clicked again while already running.
-                if (wheelSpinning == false)
-                {
+                if (wheelSpinning == false) {
                     // Based on the power level selected adjust the number of spins for the wheel, the more times is has
                     // to rotate with the duration of the animation the quicker the wheel spins.
-                    if (wheelPower == 1)
-                    {
+                    if (wheelPower == 1) {
                         theWheel.animation.spins = 3;
-                    }
-                    else if (wheelPower == 2)
-                    {
+                    } else if (wheelPower == 2) {
                         theWheel.animation.spins = 6;
-                    }
-                    else if (wheelPower == 3)
-                    {
+                    } else if (wheelPower == 3) {
                         theWheel.animation.spins = 10;
                     }
 
@@ -244,16 +234,11 @@
             {
                 // Just alert to the user what happened.
                 // In a real project probably want to do something more interesting than this with the result.
-                if (indicatedSegment.text == 'LOOSE TURN')
-                {
+                if (indicatedSegment.text == 'LOOSE TURN') {
                     alert('Sorry but you loose a turn.');
-                }
-                else if (indicatedSegment.text == 'BANKRUPT')
-                {
+                } else if (indicatedSegment.text == 'BANKRUPT') {
                     alert('Oh no, you have gone BANKRUPT!');
-                }
-                else
-                {
+                } else {
                     alert("You have won " + indicatedSegment.text);
                 }
             }

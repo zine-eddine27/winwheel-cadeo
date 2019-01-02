@@ -74,7 +74,7 @@
         </div>
         <script>
             // Create new wheel object specifying the parameters at creation time.
-            var theWheel = new Winwheel({
+            let theWheel = new Winwheel({
                 'numSegments'       : 4,         // Specify number of segments.
                 'outerRadius'       : 150,       // Set outer radius so wheel fits inside the background.
                 'drawMode'          : 'image',   // drawMode must be set to image.
@@ -105,7 +105,7 @@
             });
 
             // Create new image object in memory.
-            var loadedImg = new Image();
+            let loadedImg = new Image();
 
             // Create callback to execute once the image has finished loading.
             loadedImg.onload = function()
@@ -120,8 +120,8 @@
 
 
             // Vars used by the code in this page to do power controls.
-            var wheelPower    = 0;
-            var wheelSpinning = false;
+            let wheelPower    = 0;
+            let wheelSpinning = false;
 
             // -------------------------------------------------------
             // Function to handle the onClick on the power buttons.
@@ -129,26 +129,22 @@
             function powerSelected(powerLevel)
             {
                 // Ensure that power can't be changed while wheel is spinning.
-                if (wheelSpinning == false)
-                {
+                if (wheelSpinning == false) {
                     // Reset all to grey incase this is not the first time the user has selected the power.
                     document.getElementById('pw1').className = "";
                     document.getElementById('pw2').className = "";
                     document.getElementById('pw3').className = "";
 
                     // Now light up all cells below-and-including the one selected by changing the class.
-                    if (powerLevel >= 1)
-                    {
+                    if (powerLevel >= 1) {
                         document.getElementById('pw1').className = "pw1";
                     }
 
-                    if (powerLevel >= 2)
-                    {
+                    if (powerLevel >= 2) {
                         document.getElementById('pw2').className = "pw2";
                     }
 
-                    if (powerLevel >= 3)
-                    {
+                    if (powerLevel >= 3) {
                         document.getElementById('pw3').className = "pw3";
                     }
 
@@ -167,20 +163,14 @@
             function startSpin()
             {
                 // Ensure that spinning can't be clicked again while already running.
-                if (wheelSpinning == false)
-                {
+                if (wheelSpinning == false) {
                     // Based on the power level selected adjust the number of spins for the wheel, the more times is has
                     // to rotate with the duration of the animation the quicker the wheel spins.
-                    if (wheelPower == 1)
-                    {
+                    if (wheelPower == 1) {
                         theWheel.animation.spins = 2;
-                    }
-                    else if (wheelPower == 2)
-                    {
+                    } else if (wheelPower == 2) {
                         theWheel.animation.spins = 5;
-                    }
-                    else if (wheelPower == 3)
-                    {
+                    } else if (wheelPower == 3) {
                         theWheel.animation.spins = 8;
                     }
 
