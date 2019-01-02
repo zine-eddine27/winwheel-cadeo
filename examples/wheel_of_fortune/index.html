@@ -115,11 +115,33 @@
                 'animation' :           // Specify the animation to use.
                 {
                     'type'     : 'spinToStop',
-                    'duration' : 8,     // Duration in seconds.
+                    'duration' : 10,    // Duration in seconds.
                     'spins'    : 3,     // Default number of complete spins.
-                    'callbackFinished' : alertPrize
-                }
+                    'callbackFinished' : alertPrize,
+                    'callbackSound'    : playSound,   // Function to call when the tick sound is to be triggered.
+                    'soundTrigger'     : 'pin'        // Specify pins are to trigger the sound, the other option is 'segment'.
+                },
+                'pins' :				// Turn pins on.
+				{
+					'number'     : 24,
+					'fillStyle'  : 'silver',
+					'outerRadius': 4,
+				}
             });
+
+            // Loads the tick audio sound in to an audio object.
+			var audio = new Audio('tick.mp3');
+
+			// This function is called when the sound is to be played.
+            function playSound()
+            {
+                // Stop and rewind the sound if it already happens to be playing.
+                audio.pause();
+                audio.currentTime = 0;
+
+                // Play the sound.
+                audio.play();
+            }
 
             // Vars used by the code in this page to do power controls.
             var wheelPower    = 0;
@@ -183,7 +205,7 @@
                     }
                     else if (wheelPower == 3)
                     {
-                        theWheel.animation.spins = 9;
+                        theWheel.animation.spins = 10;
                     }
 
                     // Disable the spin button so can't click again while wheel is spinning.
