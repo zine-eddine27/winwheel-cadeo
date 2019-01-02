@@ -19,7 +19,7 @@ Winwheel.js Features Include:
 
 ## Example
 ```javascript
-var theWheel = new Winwheel({
+let theWheel = new Winwheel({
     'numSegments'    : 4,
     'segments'       :
     [
