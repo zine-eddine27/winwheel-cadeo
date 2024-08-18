@@ -2,7 +2,7 @@ import gsap from 'gsap';
 
 function Winwheel(options, drawWheel)
 {
-    defaultOptions = {
+    let defaultOptions = {
         'canvasId'          : 'canvas',     // Id of the canvas which the wheel is to draw on to.
         'centerX'           : null,         // X position of the center of the wheel. The default of these are null which means will be placed in center of the canvas.
         'centerY'           : null,         // Y position of the wheel center. If left null at time of construct the center of the canvas is used.
@@ -2309,5 +2309,3 @@ function winwheelResize()
     // Now re-draw the wheel to ensure the changes in size are rendered.
     winwheelToDrawDuringAnimation.draw();
 }
-
-export default Winwheel;
