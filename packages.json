@@ -1,0 +1,8 @@
+{
+    "name": "winwheel-cadeo",
+    "version": "1.0.0",
+    "main": "Winwheel.js",
+    "dependencies": {
+      "gsap": "^3.11.2"
+    }
+  }
