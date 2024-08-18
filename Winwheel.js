@@ -1919,34 +1919,35 @@ class Winwheel {
 // ====================================================================================================================
 // Class for the wheel pins.
 // ====================================================================================================================
-function Pin(options)
-{
-    let defaultOptions = {
-        'visible'        : true,     // In future there might be some functionality related to the pins even if they are not displayed.
-        'number'         : 36,       // The number of pins. These are evenly distributed around the wheel.
-        'outerRadius'    : 3,        // Radius of the pins which determines their size.
-        'fillStyle'      : 'grey',   // Fill colour of the pins.
-        'strokeStyle'    : 'black',  // Line colour of the pins.
-        'lineWidth'      : 1,        // Line width of the pins.
-        'margin'         : 3,        // The space between outside edge of the wheel and the pins.
-        'responsive'     : false,    // If set to true the diameter of the pin will resize when the wheel is responsive.
-    };
+class Pin {
+    constructor(options) {
+        let defaultOptions = {
+            'visible': true, // In future there might be some functionality related to the pins even if they are not displayed.
+            'number': 36, // The number of pins. These are evenly distributed around the wheel.
+            'outerRadius': 3, // Radius of the pins which determines their size.
+            'fillStyle': 'grey', // Fill colour of the pins.
+            'strokeStyle': 'black', // Line colour of the pins.
+            'lineWidth': 1, // Line width of the pins.
+            'margin': 3, // The space between outside edge of the wheel and the pins.
+            'responsive': false, // If set to true the diameter of the pin will resize when the wheel is responsive.
+        };
 
-    // Now loop through the default options and create properties of this class set to the value for
-    // the option passed in if a value was, or if not then set the value of the default.
-    for (let key in defaultOptions) {
-        if ((options != null) && (typeof(options[key]) !== 'undefined')) {
-            this[key] = options[key];
-        } else {
-            this[key] = defaultOptions[key];
-        }
-    }
-
-    // Also loop though the passed in options and add anything specified not part of the class in to it as a property.
-    if (options != null) {
-        for (let key in options) {
-            if (typeof(this[key]) === 'undefined') {
+        // Now loop through the default options and create properties of this class set to the value for
+        // the option passed in if a value was, or if not then set the value of the default.
+        for (let key in defaultOptions) {
+            if ((options != null) && (typeof (options[key]) !== 'undefined')) {
                 this[key] = options[key];
+            } else {
+                this[key] = defaultOptions[key];
+            }
+        }
+
+        // Also loop though the passed in options and add anything specified not part of the class in to it as a property.
+        if (options != null) {
+            for (let key in options) {
+                if (typeof (this[key]) === 'undefined') {
+                    this[key] = options[key];
+                }
             }
         }
     }
@@ -1955,43 +1956,44 @@ function Pin(options)
 // ====================================================================================================================
 // Class for the wheel spinning animation which like a segment becomes a property of the wheel.
 // ====================================================================================================================
-function Animation(options)
-{
-    // Most of these options are null because the defaults are different depending on the type of animation.
-    let defaultOptions = {
-        'type'              : 'spinOngoing',   // For now there are only supported types are spinOngoing (continuous), spinToStop, spinAndBack, custom.
-        'direction'         : 'clockwise',     // clockwise or anti-clockwise.
-        'propertyName'      : null,            // The name of the winning wheel property to be affected by the animation.
-        'propertyValue'     : null,            // The value the property is to be set to at the end of the animation.
-        'duration'          : 10,              // Duration of the animation.
-        'yoyo'              : false,           // If the animation is to reverse back again i.e. yo-yo.
-        'repeat'            : null,            // The number of times the animation is to repeat, -1 will cause it to repeat forever.
-        'easing'            : null,            // The easing to use for the animation, default is the best for spin to stop. Use Linear.easeNone for no easing.
-        'stopAngle'         : null,            // Used for spinning, the angle at which the wheel is to stop.
-        'spins'             : null,            // Used for spinning, the number of complete 360 degree rotations the wheel is to do.
-        'clearTheCanvas'    : null,            // If set to true the canvas will be cleared before the wheel is re-drawn, false it will not, null the animation will abide by the value of this property for the parent wheel object.
-        'callbackFinished'  : null,            // Function to callback when the animation has finished.
-        'callbackBefore'    : null,            // Function to callback before the wheel is drawn each animation loop.
-        'callbackAfter'     : null,            // Function to callback after the wheel is drawn each animation loop.
-        'callbackSound'     : null,            // Function to callback if a sound should be triggered on change of segment or pin.
-        'soundTrigger'      : 'segment'        // Sound trigger type. Default is segment which triggers when segment changes, can be pin if to trigger when pin passes the pointer.
-    };
+class Animation {
+    constructor(options) {
+        // Most of these options are null because the defaults are different depending on the type of animation.
+        let defaultOptions = {
+            'type': 'spinOngoing', // For now there are only supported types are spinOngoing (continuous), spinToStop, spinAndBack, custom.
+            'direction': 'clockwise', // clockwise or anti-clockwise.
+            'propertyName': null, // The name of the winning wheel property to be affected by the animation.
+            'propertyValue': null, // The value the property is to be set to at the end of the animation.
+            'duration': 10, // Duration of the animation.
+            'yoyo': false, // If the animation is to reverse back again i.e. yo-yo.
+            'repeat': null, // The number of times the animation is to repeat, -1 will cause it to repeat forever.
+            'easing': null, // The easing to use for the animation, default is the best for spin to stop. Use Linear.easeNone for no easing.
+            'stopAngle': null, // Used for spinning, the angle at which the wheel is to stop.
+            'spins': null, // Used for spinning, the number of complete 360 degree rotations the wheel is to do.
+            'clearTheCanvas': null, // If set to true the canvas will be cleared before the wheel is re-drawn, false it will not, null the animation will abide by the value of this property for the parent wheel object.
+            'callbackFinished': null, // Function to callback when the animation has finished.
+            'callbackBefore': null, // Function to callback before the wheel is drawn each animation loop.
+            'callbackAfter': null, // Function to callback after the wheel is drawn each animation loop.
+            'callbackSound': null, // Function to callback if a sound should be triggered on change of segment or pin.
+            'soundTrigger': 'segment' // Sound trigger type. Default is segment which triggers when segment changes, can be pin if to trigger when pin passes the pointer.
+        };
 
-    // Now loop through the default options and create properties of this class set to the value for
-    // the option passed in if a value was, or if not then set the value of the default.
-    for (let key in defaultOptions) {
-        if ((options != null) && (typeof(options[key]) !== 'undefined')) {
-            this[key] = options[key];
-        } else {
-            this[key] = defaultOptions[key];
-        }
-    }
-
-    // Also loop though the passed in options and add anything specified not part of the class in to it as a property.
-    if (options != null) {
-        for (let key in options) {
-            if (typeof(this[key]) === 'undefined') {
+        // Now loop through the default options and create properties of this class set to the value for
+        // the option passed in if a value was, or if not then set the value of the default.
+        for (let key in defaultOptions) {
+            if ((options != null) && (typeof (options[key]) !== 'undefined')) {
                 this[key] = options[key];
+            } else {
+                this[key] = defaultOptions[key];
+            }
+        }
+
+        // Also loop though the passed in options and add anything specified not part of the class in to it as a property.
+        if (options != null) {
+            for (let key in options) {
+                if (typeof (this[key]) === 'undefined') {
+                    this[key] = options[key];
+                }
             }
         }
     }
@@ -2000,98 +2002,99 @@ function Animation(options)
 // ====================================================================================================================
 // Class for segments. When creating a json of options can be passed in.
 // ====================================================================================================================
-function Segment(options)
-{
-    // Define default options for segments, most are null so that the global defaults for the wheel
-    // are used if the values for a particular segment are not specifically set.
-    let defaultOptions = {
-        'size'              : null, // Leave null for automatic. Valid values are degrees 0-360. Use percentToDegrees function if needed to convert.
-        'text'              : '',   // Default is blank.
-        'fillStyle'         : null, // If null for the rest the global default will be used.
-        'strokeStyle'       : null,
-        'lineWidth'         : null,
-        'textFontFamily'    : null,
-        'textFontSize'      : null,
-        'textFontWeight'    : null,
-        'textOrientation'   : null,
-        'textAlignment'     : null,
-        'textDirection'     : null,
-        'textMargin'        : null,
-        'textFillStyle'     : null,
-        'textStrokeStyle'   : null,
-        'textLineWidth'     : null,
-        'image'             : null, // Name/path to the image
-        'imageDirection'    : null, // Direction of the image, can be set globally for the whole wheel.
-        'imgData'           : null  // Image object created here and loaded with image data.
-    };
+class Segment {
+    constructor(options) {
+        // Define default options for segments, most are null so that the global defaults for the wheel
+        // are used if the values for a particular segment are not specifically set.
+        let defaultOptions = {
+            'size': null, // Leave null for automatic. Valid values are degrees 0-360. Use percentToDegrees function if needed to convert.
+            'text': '', // Default is blank.
+            'fillStyle': null, // If null for the rest the global default will be used.
+            'strokeStyle': null,
+            'lineWidth': null,
+            'textFontFamily': null,
+            'textFontSize': null,
+            'textFontWeight': null,
+            'textOrientation': null,
+            'textAlignment': null,
+            'textDirection': null,
+            'textMargin': null,
+            'textFillStyle': null,
+            'textStrokeStyle': null,
+            'textLineWidth': null,
+            'image': null, // Name/path to the image
+            'imageDirection': null, // Direction of the image, can be set globally for the whole wheel.
+            'imgData': null // Image object created here and loaded with image data.
+        };
 
-    // Now loop through the default options and create properties of this class set to the value for
-    // the option passed in if a value was, or if not then set the value of the default.
-    for (let key in defaultOptions) {
-        if ((options != null) && (typeof(options[key]) !== 'undefined')) {
-            this[key] = options[key];
-        } else {
-            this[key] = defaultOptions[key];
-        }
-    }
-
-    // Also loop though the passed in options and add anything specified not part of the class in to it as a property.
-    // This allows the developer to easily add properties to segments at construction time.
-    if (options != null) {
-        for (let key in options) {
-            if (typeof(this[key]) === 'undefined') {
+        // Now loop through the default options and create properties of this class set to the value for
+        // the option passed in if a value was, or if not then set the value of the default.
+        for (let key in defaultOptions) {
+            if ((options != null) && (typeof (options[key]) !== 'undefined')) {
                 this[key] = options[key];
+            } else {
+                this[key] = defaultOptions[key];
             }
         }
-    }
 
-    // There are 2 additional properties which are set by the code, so need to define them here.
-    // They are not in the default options because they are not something that should be set by the user,
-    // the values are updated every time the updateSegmentSizes() function is called.
-    this.startAngle = 0;
-    this.endAngle   = 0;
+        // Also loop though the passed in options and add anything specified not part of the class in to it as a property.
+        // This allows the developer to easily add properties to segments at construction time.
+        if (options != null) {
+            for (let key in options) {
+                if (typeof (this[key]) === 'undefined') {
+                    this[key] = options[key];
+                }
+            }
+        }
+
+        // There are 2 additional properties which are set by the code, so need to define them here.
+        // They are not in the default options because they are not something that should be set by the user,
+        // the values are updated every time the updateSegmentSizes() function is called.
+        this.startAngle = 0;
+        this.endAngle = 0;
+    }
+    // ====================================================================================================================
+    // Changes an image for a segment by setting a callback to render the wheel once the image has loaded.
+    // ====================================================================================================================
+    changeImage(image, imageDirection) {
+        // Change image name, blank image data.
+        this.image = image;
+        this.imgData = null;
+
+        // Set direction.
+        if (imageDirection) {
+            this.imageDirection = imageDirection;
+        }
+
+        // Set imgData to a new image object, change set callback and change src (just like in wheel constructor).
+        winhweelAlreadyDrawn = false;
+        this.imgData = new Image();
+        this.imgData.onload = winwheelLoadedImage;
+        this.imgData.src = this.image;
+    }
 }
 
-// ====================================================================================================================
-// Changes an image for a segment by setting a callback to render the wheel once the image has loaded.
-// ====================================================================================================================
-Segment.prototype.changeImage = function(image, imageDirection)
-{
-    // Change image name, blank image data.
-    this.image = image;
-    this.imgData = null;
-
-    // Set direction.
-    if (imageDirection) {
-        this.imageDirection = imageDirection;
-    }
-
-    // Set imgData to a new image object, change set callback and change src (just like in wheel constructor).
-    winhweelAlreadyDrawn = false;
-    this.imgData = new Image();
-    this.imgData.onload = winwheelLoadedImage;
-    this.imgData.src = this.image;
-}
 
 // ====================================================================================================================
 // Class that is created as property of the wheel. Draws line from center of the wheel out to edge of canvas to
 // indicate where the code thinks the pointer location is. Helpful to get alignment correct esp when using images.
 // ====================================================================================================================
-function PointerGuide(options)
-{
-    let defaultOptions = {
-        'display'     : false,
-        'strokeStyle' : 'red',
-        'lineWidth'   : 3
-    };
+class PointerGuide {
+    constructor(options) {
+        let defaultOptions = {
+            'display': false,
+            'strokeStyle': 'red',
+            'lineWidth': 3
+        };
 
-    // Now loop through the default options and create properties of this class set to the value for
-    // the option passed in if a value was, or if not then set the value of the default.
-    for (let key in defaultOptions) {
-        if ((options != null) && (typeof(options[key]) !== 'undefined')) {
-            this[key] = options[key];
-        } else {
-            this[key] = defaultOptions[key];
+        // Now loop through the default options and create properties of this class set to the value for
+        // the option passed in if a value was, or if not then set the value of the default.
+        for (let key in defaultOptions) {
+            if ((options != null) && (typeof (options[key]) !== 'undefined')) {
+                this[key] = options[key];
+            } else {
+                this[key] = defaultOptions[key];
+            }
         }
     }
 }
